@@ -4,9 +4,6 @@ import pandas as pd
 from time import sleep
 from binance.error import ClientError
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 api = os.getenv('API', None)
 secret = os.getenv('SECRET', None)
@@ -14,12 +11,14 @@ secret = os.getenv('SECRET', None)
 client = UMFutures(key=api, secret=secret)
 
 # 0.012 means +1.2%, 0.009 is -0.9%
-tp = 0.012
+# tp = 0.012
+tp = 0.006
+
 sl = 0.009
 volume = 10  # volume for one order (if its 10 and leverage is 10, then you put 1 usdt to one position)
 leverage = 10
 type = 'ISOLATED'  # type is 'ISOLATED' or 'CROSS'
-qty = 100  # Amount of concurrent opened positions
+qty = 10  # Amount of concurrent opened positions
 
 # getting your futures balance in USDT
 def get_balance_usdt():
@@ -121,16 +120,16 @@ def open_order(symbol, side):
         try:
             resp1 = client.new_order(symbol=symbol, side='BUY', type='LIMIT', quantity=qty, timeInForce='GTC', price=price)
             print(symbol, side, "placing order")
-            print(resp1)
+            print(resp1['origType'])
             sleep(2)
-            sl_price = round(price - price*sl, price_precision)
+            sl_price = round(price - price * sl, price_precision)
             resp2 = client.new_order(symbol=symbol, side='SELL', type='STOP_MARKET', quantity=qty, timeInForce='GTC', stopPrice=sl_price)
-            print(resp2)
+            print(resp2['origType'])
             sleep(2)
             tp_price = round(price + price * tp, price_precision)
             resp3 = client.new_order(symbol=symbol, side='SELL', type='TAKE_PROFIT_MARKET', quantity=qty, timeInForce='GTC',
                                     stopPrice=tp_price)
-            print(resp3)
+            print(resp3['origType'])
         except ClientError as error:
             print(
                 "Found error. status: {}, error code: {}, error message: {}".format(
@@ -141,16 +140,16 @@ def open_order(symbol, side):
         try:
             resp1 = client.new_order(symbol=symbol, side='SELL', type='LIMIT', quantity=qty, timeInForce='GTC', price=price)
             print(symbol, side, "placing order")
-            print(resp1)
+            print(resp1['origType'])
             sleep(2)
             sl_price = round(price + price*sl, price_precision)
             resp2 = client.new_order(symbol=symbol, side='BUY', type='STOP_MARKET', quantity=qty, timeInForce='GTC', stopPrice=sl_price)
-            print(resp2)
+            print(resp2['origType'])
             sleep(2)
             tp_price = round(price - price * tp, price_precision)
             resp3 = client.new_order(symbol=symbol, side='BUY', type='TAKE_PROFIT_MARKET', quantity=qty, timeInForce='GTC',
                                     stopPrice=tp_price)
-            print(resp3)
+            print(resp3['origType'])
         except ClientError as error:
             print(
                 "Found error. status: {}, error code: {}, error message: {}".format(
@@ -262,7 +261,6 @@ symbols = get_tickers_usdt()
 while True:
     # we need to get balance to check if the connection is good, or you have all the needed permissions
     balance = get_balance_usdt()
-
     sleep(1)
     if balance == None:
         print('Cant connect to API. Check IP, restrictions or wait some time')
@@ -271,14 +269,28 @@ while True:
         # getting position list:
         pos = []
         pos = get_pos()
+
+        # check type of pos object of type 'NoneType' has no len()
+        # if pos == None:
+        #     pos = []
+        # if len(pos) > 0:
+        #     pass
+        
+
         print(f'You have {len(pos)} opened positions:\n{pos}')
         # Getting order list
         ord = []
         ord = check_orders()
         # removing stop orders for closed positions
-        for elem in ord:
-            if not elem in pos:
-                close_open_orders(elem)
+        
+        # if ord == None:
+        #     ord = []
+        # if len(ord) > 0:
+        #     pass
+        
+        # for elem in ord:
+        #     if not elem in pos:
+        #         close_open_orders(elem)
 
         if len(pos) < qty:
             for elem in symbols:
@@ -322,7 +334,5 @@ while True:
                     sleep(1)
                     sleep(10)
                     # break
-    print('Waiting 3 min')
-    sleep(180)
-
-
+    print('Waiting 30 sec')
+    sleep(30)
