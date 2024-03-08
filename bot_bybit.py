@@ -160,15 +160,19 @@ def ema200_50(symbol):
     
     
 def str_signal(symbol):
-    kl = session.klines(symbol)
+    kl = session.klines(symbol, timeframe)
     rsi = ta.momentum.RSIIndicator(kl.Close).rsi()
     rsi_k = ta.momentum.StochRSIIndicator(kl.Close).stochrsi_k()
     rsi_d = ta.momentum.StochRSIIndicator(kl.Close).stochrsi_d()
     ema = ta.trend.ema_indicator(kl.Close, window=200)
     if rsi.iloc[-1] < 40 and ema.iloc[-1] < kl.Close.iloc[-1] and rsi_k.iloc[-1] < 20 and rsi_k.iloc[-3] < rsi_d.iloc[-3] and rsi_k.iloc[-2] < rsi_d.iloc[-2] and rsi_k.iloc[-1] > rsi_d.iloc[-1]:
         return 'up'
+    # if rsi.iloc[-1] < 30 and ema.iloc[-1] < kl.Close.iloc[-1] and rsi_k.iloc[-1] < 20 and rsi_k.iloc[-3] < rsi_d.iloc[-3] and rsi_k.iloc[-2] < rsi_d.iloc[-2] and rsi_k.iloc[-1] > rsi_d.iloc[-1]:
+    #     return 'up'
     if rsi.iloc[-1] > 60 and ema.iloc[-1] > kl.Close.iloc[-1] and rsi_k.iloc[-1] > 80 and rsi_k.iloc[-3] > rsi_d.iloc[-3] and rsi_k.iloc[-2] > rsi_d.iloc[-2] and rsi_k.iloc[-1] < rsi_d.iloc[-1]:
         return 'down'
+    # if rsi.iloc[-1] > 70 and ema.iloc[-1] > kl.Close.iloc[-1] and rsi_k.iloc[-1] > 80 and rsi_k.iloc[-3] > rsi_d.iloc[-3] and rsi_k.iloc[-2] > rsi_d.iloc[-2] and rsi_k.iloc[-1] < rsi_d.iloc[-1]:
+    #     return 'down'
 
     else:
         return 'none'
@@ -188,25 +192,27 @@ while True:
         try:
             positions = session.get_positions()
             print(f'Opened positions: {len(positions)}')
-            last_pnl = session.get_last_pnl(10)
-            print(f'Last 10 PnL: {last_pnl} USDT')
+            last_pnl = session.get_last_pnl(100)
+            print(f'Last 100 PnL: {last_pnl} USDT')
             current_pnl = session.get_current_pnl()
             print(f'Current PnL: {current_pnl} USDT')
             for elem in symbols:
                 positions = session.get_positions()
                 if len(positions) >= max_positions:
                     break
-                signal = rsi_signal14(session, elem)
+                # signal = rsi_signal14(session, elem)
+                signal = str_signal(elem)
                 
+                print(f'Checking {elem}...  Signal: {signal}...')
                 if signal == 'up' and not elem in positions:
-                    print(f'Found BUY signal for {elem}')
+                    print(f'✅ Found BUY signal for {elem}')
                     kl = session.klines(elem, timeframe)
                     rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
                     tp, sl = adjust_tp_sl(rsi)
                     session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
                     sleep(1)
                 if signal == 'down' and not elem in positions:
-                    print(f'Found SELL signal for {elem}')
+                    print(f'✅ Found SELL signal for {elem}')
                     kl = session.klines(elem, timeframe)
                     rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
                     tp, sl = adjust_tp_sl(rsi)
