@@ -1,11 +1,9 @@
 import random
 from Bybit import Bybit
 from time import sleep
-
 import ta
 from threading import Thread
 import os
-
 from tqdm import tqdm
 
 api = os.getenv('API_BYBIT', None)
@@ -15,84 +13,29 @@ accountType = os.getenv('ACCOUNT_TYPE', None)
 session = Bybit(api, secret, accountType)
 
 # tp = 0.012  # Take Profit +1.2%
-# tp = 0.006  # Take Profit +0.6%
 # sl = 0.009  # Stop Loss -0.9%
 
 mode = 1  # 1 - Isolated, 0 - Cross
 leverage = 25  # 10x
 timeframe = 15 # 15 minutes
 timeframes = [15]
-
 qty = 1 # Amount of USDT for one order
-max_positions = 20 # max 10 positions
-
-# def adjust_tp_sl(rsi):
-#     if rsi > 70:
-#         tp = 0.004  # Lower take profit level for overbought conditions
-#         sl = 0.01   # Higher stop loss level for overbought conditions
-#     elif rsi < 30:
-#         tp = 0.008  # Higher take profit level for oversold conditions
-#         sl = 0.007  # Lower stop loss level for oversold conditions
-#     else:
-#         tp = 0.006  # Default take profit level
-#         sl = 0.009  # Default stop loss level
-        
+max_positions = 30 # max 10 positions
 
 #     return tp, sl
 def adjust_tp_sl(rsi):
     # If RSI is over 70, it's considered overbought
     if rsi > 70:
-        tp = 0.03  # Lower take profit level for overbought conditions (3% of Price)
-        sl = 0.02  # Lower stop loss level for overbought conditions (2% of Price)
+        tp = 0.01  # Lower take profit level for overbought conditions (1% of Price)
+        sl = 0.005  # Lower stop loss level for overbought conditions (0.5% of Price)
     # If RSI is under 30, it's considered oversold
     elif rsi < 30:
-        tp = 0.06  # Higher take profit level for oversold conditions (6% of Price)
-        sl = 0.05  # Lower stop loss level for oversold conditions (5% of Price)
+        tp = 0.015  # Higher take profit level for oversold conditions (1.5% of Price)
+        sl = 0.012  # Lower stop loss level for oversold conditions (1.2% of Price)
     else:
         # If RSI is between 30 and 70, it's considered normal
-        tp = 0.06  # Default take profit level (6% of Price)
-        sl = 0.03  # Lower stop loss level (3% of Price)
-    return tp, sl
-
-
-def adjust_tp_sl1(rsi, current_price, entry_price):
-    """
-    This function adjusts take profit (tp) and stop loss (sl) levels based on RSI, 
-    current price, and entry price. It also implements a basic trailing stop loss.
-
-    Args:
-        rsi (float): RSI indicator value.
-        current_price (float): Current market price of the asset.
-        entry_price (float): Price at which the position was entered.
-
-    Returns:
-        tuple: A tuple containing the adjusted take profit and stop loss levels.
-    """
-
-    # Default values
-    base_tp = 0.006
-    base_sl = 0.009
-    trailing_buffer = 0.002  # Adjust this value based on your risk tolerance
-
-    # Adjust take profit based on RSI
-    if rsi > 70:
-        tp_multiplier = 0.5  # Lower take profit in overbought conditions
-    elif rsi < 30:
-        tp_multiplier = 1.5  # Higher take profit in oversold conditions
-    else:
-        tp_multiplier = 1.0
-
-    tp = base_tp * tp_multiplier
-
-    # Implement trailing stop loss (basic example)
-    if current_price > entry_price:  # Long position
-        trailing_sl = entry_price + trailing_buffer
-    else:  # Short position
-        trailing_sl = entry_price - trailing_buffer
-
-    # Ensure stop loss is not worse than base stop loss
-    sl = max(base_sl, trailing_sl)
-
+        tp = 0.012  # Default take profit level (1.2% of Price)
+        sl = 0.009  # Lower stop loss level (0.9% of Price)
     return tp, sl
 
 
@@ -125,9 +68,7 @@ def combined_signal(session, symbol):
     else:
         return 'none'
 
-    
-    
-def rsi_signal1(session, symbol):
+def rsi_signal_basic(session, symbol):
     kl = session.klines(symbol, timeframe)
     rsi = ta.momentum.RSIIndicator(kl.Close).rsi()
     if rsi.iloc[-2] < 30 and rsi.iloc[-1] > 30:
@@ -138,30 +79,6 @@ def rsi_signal1(session, symbol):
     
         return 'none'
 
-def rsi_signal(session, symbol):
-    signals = []
-    
-    for timeframe in timeframes:
-        
-        kl = session.klines(symbol, timeframe)
-        rsi = ta.momentum.RSIIndicator(kl.Close).rsi()
-        if rsi.iloc[-2] < 30 and rsi.iloc[-1] > 30:
-            signals.append('up')
-        elif rsi.iloc[-2] > 70 and rsi.iloc[-1] < 70:
-            signals.append('down')
-        else:
-            signals.append('none')
-                
-    if all(signal == 'up' for signal in signals):
-        print(f'📈 Up signal for {symbol}. Prev RSI: {rsi.iloc[-2]}, Current RSI: {rsi.iloc[-1]}.')
-        return 'up'
-    elif all(signal == 'down' for signal in signals):
-        print(f'📉 Down signal for {symbol}. Prev RSI: {rsi.iloc[-2]}, Current RSI: {rsi.iloc[-1]}.')
-        return 'down'
-    else:
-        return 'none'
-    
-    
 def rsi_signal14(session, symbol):
     signals = []
     
@@ -185,8 +102,6 @@ def rsi_signal14(session, symbol):
     else:
         return 'none'
     
-
-
 
 def signal2(symbol):
     kl = session.klines(symbol, timeframe)
@@ -220,6 +135,30 @@ def williamsR(symbol):
     else:
         return 'none'
     
+def macd_ema(symbol):
+    kl = session.klines(symbol)
+    macd = ta.trend.macd_diff(kl.Close)
+    ema = ta.trend.ema_indicator(kl.Close, window=200)
+    if macd.iloc[-3] < 0 and macd.iloc[-2] < 0 and macd.iloc[-1] > 0 and ema.iloc[-1] < kl.Close.iloc[-1]:
+        return 'up'
+    if macd.iloc[-3] > 0 and macd.iloc[-2] > 0 and macd.iloc[-1] < 0 and ema.iloc[-1] > kl.Close.iloc[-1]:
+        return 'down'
+    else:
+        return 'none'
+
+
+def ema200_50(symbol):
+    kl = session.klines(symbol)
+    ema200 = ta.trend.ema_indicator(kl.Close, window=100)
+    ema50 = ta.trend.ema_indicator(kl.Close, window=50)
+    if ema50.iloc[-3] < ema200.iloc[-3] and ema50.iloc[-2] < ema200.iloc[-2] and ema50.iloc[-1] > ema200.iloc[-1]:
+        return 'up'
+    if ema50.iloc[-3] > ema200.iloc[-3] and ema50.iloc[-2] > ema200.iloc[-2] and ema50.iloc[-1] < ema200.iloc[-1]:
+        return 'down'
+    else:
+        return 'none'
+    
+    
 def str_signal(symbol):
     kl = session.klines(symbol)
     rsi = ta.momentum.RSIIndicator(kl.Close).rsi()
@@ -234,8 +173,6 @@ def str_signal(symbol):
     else:
         return 'none'
 
-
-qty = 10
 symbols = session.get_tickers()
 
 while True:
@@ -255,23 +192,6 @@ while True:
             print(f'Last 10 PnL: {last_pnl} USDT')
             current_pnl = session.get_current_pnl()
             print(f'Current PnL: {current_pnl} USDT')
-            # for elem in symbols:
-            #     positions = session.get_positions()
-            #     if len(positions) >= max_positions:
-            #         break
-            #     # signal = signal2(elem)
-            #     signal = rsi_signal(session, elem)
-            #     if signal == 'up' and not elem in positions:
-            #         print(f'Found BUY signal for {elem}')
-                    
-                    
-            #         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
-            #         sleep(1)
-            #     if signal == 'down' and not elem in positions:
-            #         print(f'Found SELL signal for {elem}')
-            #         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
-            #         sleep(1)
-                    
             for elem in symbols:
                 positions = session.get_positions()
                 if len(positions) >= max_positions:
@@ -293,18 +213,13 @@ while True:
                     session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
                     sleep(1)
 
-            
         except Exception as err:
             print(err)
             print('No connection')
             for i in tqdm(range(60, 0, -1)):
                 sleep(1)
-    # for i in range(30, 0, -1):
-    #     print(f'⌛️ Wait for {i} seconds')
-    #     sleep(1)
-    
 
-    for i in tqdm(range(200, 0, -5)):
+    for i in tqdm(range(100, 0, -5)):
         sleep(1)
 
 
