@@ -20,11 +20,12 @@ class Bybit:
         except Exception as err:
             print(err)
 
-    def get_positions(self):
+    def get_positions(self, limit=20):
         try:
             resp = self.session.get_positions(
                 category='linear',
-                settleCoin='USDT'
+                settleCoin='USDT',
+                limit=limit
             )['result']['list']
             pos = []
             for elem in resp:

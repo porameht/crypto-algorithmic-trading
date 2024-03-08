@@ -16,11 +16,11 @@ session = Bybit(api, secret, accountType)
 # sl = 0.009  # Stop Loss -0.9%
 
 mode = 1  # 1 - Isolated, 0 - Cross
-leverage = 25  # 10x
+leverage = 10  # 10x
 timeframe = 15 # 15 minutes
 timeframes = [15]
 qty = 1 # Amount of USDT for one order
-max_positions = 30 # max 10 positions
+max_positions = 50 # max 10 positions
 
 #     return tp, sl
 def adjust_tp_sl(rsi):
@@ -190,20 +190,18 @@ while True:
         print(f'Timeframe: {timeframe} minutes')
         
         try:
-            positions = session.get_positions()
-            print(f'Opened positions: {len(positions)}')
+            positions = session.get_positions(200)
+            print(f'📂 Opened positions: {len(positions)}')
             last_pnl = session.get_last_pnl(100)
-            print(f'Last 100 PnL: {last_pnl} USDT')
+            print(f'💰 Last 100 P&L: {last_pnl} USDT')
             current_pnl = session.get_current_pnl()
-            print(f'Current PnL: {current_pnl} USDT')
+            print(f'💹 Current P&L: {current_pnl} USDT')
             for elem in symbols:
-                positions = session.get_positions()
                 if len(positions) >= max_positions:
                     break
                 # signal = rsi_signal14(session, elem)
                 signal = str_signal(elem)
-                
-                print(f'Checking {elem}...  Signal: {signal}...')
+                print(f'🔍 Checking {elem}...\n🚦 Finding Signal: {signal}...')
                 if signal == 'up' and not elem in positions:
                     print(f'✅ Found BUY signal for {elem}')
                     kl = session.klines(elem, timeframe)
