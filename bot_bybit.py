@@ -201,35 +201,12 @@ def run_bot():
                 print(f'💰 Last 100 P&L: {last_pnl} USDT')
                 current_pnl = session.get_current_pnl()
                 print(f'💹 Current P&L: {current_pnl} USDT')
-                # for elem in symbols:
-                #     if len(positions) >= max_positions:
-                #         break
-                #     # signal = rsi_signal14(session, elem)
-                #     signal = str_signal(elem)
-                #     print(f'🔍 Checking {elem}...\n🚦 Finding Signal: {signal}...')
-                #     if signal == 'up' and not elem in positions:
-                #         print(f'✅ Found BUY signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-                #     if signal == 'down' and not elem in positions:
-                #         print(f'✅ Found SELL signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-                from tqdm import tqdm
-
-                # for elem in tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}"):
-                for i, elem in enumerate(tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}")):
-                    # print(f'Processing symbol {elem} ({len(symbols) - i} remaining)...')
+                for i, elem in enumerate(symbols, start=1):
                     if len(positions) >= max_positions:
                         break
+                    # signal = rsi_signal14(session, elem)
                     signal = str_signal(elem)
-                    # print(f'🔍 Checking {elem}...\n🚦 Finding Signal: {signal}...')
+                    print(f'🔍 Scan No.{i} Signal {elem}...')
                     if signal == 'up' and not elem in positions:
                         print(f'✅ Found BUY signal for {elem}')
                         kl = session.klines(elem, timeframe)
@@ -244,6 +221,29 @@ def run_bot():
                         tp, sl = adjust_tp_sl(rsi)
                         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
                         sleep(1)
+                from tqdm import tqdm
+
+                # for elem in tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}"):
+                # for i, elem in enumerate(tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}")):
+                #     # print(f'Processing symbol {elem} ({len(symbols) - i} remaining)...')
+                #     if len(positions) >= max_positions:
+                #         break
+                #     signal = str_signal(elem)
+                #     # print(f'🔍 Checking {elem}...\n🚦 Finding Signal: {signal}...')
+                #     if signal == 'up' and not elem in positions:
+                #         print(f'✅ Found BUY signal for {elem}')
+                #         kl = session.klines(elem, timeframe)
+                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
+                #         tp, sl = adjust_tp_sl(rsi)
+                #         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
+                #         sleep(1)
+                #     if signal == 'down' and not elem in positions:
+                #         print(f'✅ Found SELL signal for {elem}')
+                #         kl = session.klines(elem, timeframe)
+                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
+                #         tp, sl = adjust_tp_sl(rsi)
+                #         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
+                #         sleep(1)
 
                 # spinner = Halo(text=' Finding Signal...', spinner='dots')
                 # spinner.start()
