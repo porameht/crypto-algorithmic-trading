@@ -69,13 +69,13 @@ async def root():
 #     bot_bybit.run_bot()
 
 # use when uvicorn main:app --reload
-bot_thread = threading.Thread(target=start)
-bot_thread.daemon = True  # Set the thread as a daemon
-bot_thread.start()
+# bot_thread = threading.Thread(target=start)
+# bot_thread.daemon = True  # Set the thread as a daemon
+# bot_thread.start()
 
 # use when python main.py
-# if __name__ == "__main__":
-#     bot_thread = threading.Thread(target=run_bot)
-#     bot_thread.daemon = True  # Set the thread as a daemon
-#     bot_thread.start()
-#     uvicorn.run(app, host="0.0.0.0", port=8080)
+if __name__ == "__main__":
+    bot_thread = threading.Thread(target=start)
+    bot_thread.daemon = True  # Set the thread as a daemon
+    bot_thread.start()
+    uvicorn.run(app, host="0.0.0.0", port=8080)

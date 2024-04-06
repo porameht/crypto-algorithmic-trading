@@ -204,8 +204,8 @@ def run_bot():
                 for i, elem in enumerate(symbols, start=1):
                     if len(positions) >= max_positions:
                         break
-                    # signal = rsi_signal14(session, elem)
-                    signal = str_signal(elem)
+                    signal = rsi_signal14(session, elem)
+                    # signal = str_signal(elem)
                     print(f'🔍 Scan No.{i} Signal {elem}...')
                     if signal == 'up' and not elem in positions:
                         print(f'✅ Found BUY signal for {elem}')
