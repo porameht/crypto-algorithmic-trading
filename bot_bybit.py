@@ -1,14 +1,14 @@
-import random
 from Bybit import Bybit
 from time import sleep
 import ta
 from threading import Thread
 import os
 from tqdm import tqdm
-from halo import Halo
+from yaspin import yaspin
+
 from rich import print
 
-
+from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
 
 api = os.getenv('API_BYBIT', None)
 secret = os.getenv('SECRET_BYBIT', None)
@@ -187,7 +187,6 @@ def run_bot():
     print('Bot is running...')
     while True:
         balance = session.get_balance()
-        
         if balance is None or symbols is None:
             print('❌ Cant connect')
             sleep(120)
@@ -204,71 +203,20 @@ def run_bot():
                 for i, elem in enumerate(symbols, start=1):
                     if len(positions) >= max_positions:
                         break
-                    signal = rsi_signal14(session, elem)
-                    # signal = str_signal(elem)
-                    print(f'🔍 Scan No.{i} Signal {elem}...')
+                    with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
+                        signal = combined_signal(session, elem)
                     if signal == 'up' and not elem in positions:
                         print(f'✅ Found BUY signal for {elem}')
                         kl = session.klines(elem, timeframe)
-                        rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                        tp, sl = adjust_tp_sl(rsi)
+                        tp, sl = adjust_take_profit_stop_loss(kl)
                         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
                         sleep(1)
                     if signal == 'down' and not elem in positions:
                         print(f'✅ Found SELL signal for {elem}')
                         kl = session.klines(elem, timeframe)
-                        rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                        tp, sl = adjust_tp_sl(rsi)
+                        tp, sl = adjust_take_profit_stop_loss(kl)
                         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
                         sleep(1)
-                from tqdm import tqdm
-
-                # for elem in tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}"):
-                # for i, elem in enumerate(tqdm(symbols, desc="Finding Signal", bar_format="{l_bar}{bar}")):
-                #     # print(f'Processing symbol {elem} ({len(symbols) - i} remaining)...')
-                #     if len(positions) >= max_positions:
-                #         break
-                #     signal = str_signal(elem)
-                #     # print(f'🔍 Checking {elem}...\n🚦 Finding Signal: {signal}...')
-                #     if signal == 'up' and not elem in positions:
-                #         print(f'✅ Found BUY signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-                #     if signal == 'down' and not elem in positions:
-                #         print(f'✅ Found SELL signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-
-                # spinner = Halo(text=' Finding Signal...', spinner='dots')
-                # spinner.start()
-
-                # for elem in symbols:
-                #     if len(positions) >= max_positions:
-                #         spinner.stop()
-                #         break
-                #     signal = str_signal(elem)
-                #     if signal == 'up' and not elem in positions:
-                #         print(f'✅ Found BUY signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-                #     if signal == 'down' and not elem in positions:
-                #         print(f'✅ Found SELL signal for {elem}')
-                #         kl = session.klines(elem, timeframe)
-                #         rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-                #         tp, sl = adjust_tp_sl(rsi)
-                #         session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
-                #         sleep(1)
-
-                # spinner.stop()
 
             except Exception as err:
                 print(err)
@@ -277,6 +225,9 @@ def run_bot():
                     sleep(1)
 
         for i in tqdm(range(100, 0, -5)):
-            sleep(1)
+            sleep(1)            
+            
 
 
+if __name__ == "__main__":
+    run_bot()

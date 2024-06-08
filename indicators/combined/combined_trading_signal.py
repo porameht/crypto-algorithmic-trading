@@ -2,7 +2,7 @@ import ta
 from indicators.combined.moving_averages_signal import moving_averages_signal
 from indicators.combined.rsi_signal import rsi_signal
 from indicators.combined.macd_signal import macd_signal
-from indicators.combined.bollinger_bands_signal import bollinger_bands_signal
+from indicators.combined.bollinger_bands import bollinger_bands_signal
 from indicators.combined.volume_analysis import volume_signal
 
 def combined_trading_signal(session, symbol, timeframe):

@@ -4,7 +4,9 @@ from time import sleep
 import os
 from tqdm import tqdm
 from rich import print
-
+from yaspin import yaspin
+from dotenv import load_dotenv
+load_dotenv()
 # Import indicator functions
 from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
@@ -60,8 +62,8 @@ def run_bot():
                     if len(positions) >= max_positions:
                         break
 
-                    # Generate combined trading signal
-                    final_signal = combined_trading_signal(session, elem, timeframe)
+                    with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
+                        final_signal = combined_trading_signal(session, elem, timeframe)
 
                     print(f'🔍 Scan No.{i} Signal {elem}...')
                     if final_signal == 'up' and elem not in positions:
