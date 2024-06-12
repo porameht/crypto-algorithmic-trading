@@ -2,12 +2,10 @@ import asyncio
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
-from fastapi.responses import HTMLResponse
 import uvicorn
 from Bybit import Bybit
 import bot_bybit
 load_dotenv()
-from prettytable import PrettyTable
 
 
 import os
@@ -36,16 +34,7 @@ async def bot_context_manager():
 app = FastAPI(lifespan=lifespan)
 
 
-def get_account_overview_table(balance, limit, positions, last_pnl, current_pnl) -> str:
-    table = PrettyTable()
-    table.field_names = ["Balance", "Positions", "Last PNL", "Current PNL"]
-    
-    # Populate the table with your data
-    table.add_row([balance, positions, last_pnl, current_pnl])
-    
-    return table.get_html_string()
-
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def read_root():
     api = os.getenv('API_BYBIT', None)
     secret = os.getenv('SECRET_BYBIT', None)
@@ -55,20 +44,24 @@ async def read_root():
     balance = session.get_balance()
     
     if balance is None or symbols is None:
-        return HTMLResponse(content="<p>❌ Can't connect</p>", status_code=500)
+        return { "error": "Can't connect" }
     
     try:
         positions = session.get_positions(200)
         last_pnl = session.get_last_pnl(100)
         current_pnl = session.get_current_pnl()
-        
-        table_html = get_account_overview_table(balance, 30, positions, last_pnl, current_pnl)
-        
-        return HTMLResponse(content=table_html, status_code=200)
+                
+        return {
+            "status": bot_status,
+            "balance": balance,
+            "positions": positions,
+            "last_100_pnl": last_pnl,
+            "current_pnl": current_pnl
+        }
     
     except Exception as err:
         print(err)
-        return HTMLResponse(content="<p>No connection</p>", status_code=500)
+        return { "error": "No connection" }
 
 
 if __name__ == "__main__":
