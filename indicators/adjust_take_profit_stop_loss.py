@@ -31,9 +31,6 @@ def adjust_take_profit_stop_loss(kl):
     rsi = ta.momentum.RSIIndicator(kl.Close, window=20).rsi()
     macd = ta.trend.macd_diff(kl.Close)
 
-    print(f"RSI: {rsi}")
-    print(f"MACD: {macd}")
-
     if rsi.iloc[-1] > 70 and macd.iloc[-1] < 0:
         tp = 0.008  # Lower TP level for overbought conditions
         sl = 0.005  # Lower SL level for overbought conditions
@@ -44,5 +41,4 @@ def adjust_take_profit_stop_loss(kl):
         tp = 0.012  # Default TP level
         sl = 0.008  # Default SL level
     
-    print(f"TP: {tp}, SL: {sl}")
     return tp, sl
