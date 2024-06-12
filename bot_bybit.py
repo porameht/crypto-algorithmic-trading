@@ -72,8 +72,6 @@ async def run_bot(bot_status):
         except Exception as err:
             print(err)
             print('No connection')
-            for i in tqdm(range(60, 0, -1)):
-                await asyncio.sleep(1)
+            await asyncio.sleep(60)
 
-        for i in tqdm(range(100, 0, -5)):
-            await asyncio.sleep(1)
+        await asyncio.sleep(120)
