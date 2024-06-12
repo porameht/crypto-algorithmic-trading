@@ -2,7 +2,7 @@ from Bybit import Bybit
 from time import sleep
 import os
 from tqdm import tqdm
-from yaspin import yaspin
+# from yaspin import yaspin
 from rich import print
 from rich.table import Table
 from rich.console import Console
@@ -57,8 +57,8 @@ def run_bot():
                 for i, elem in enumerate(symbols, start=1):
                     if len(positions) >= max_positions:
                         break
-                    with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
-                        signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
+                    # with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
+                    signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
                         
                     if signal == 'up' and not elem in positions:
                         tp, sl = adjust_take_profit_stop_loss(kl)
