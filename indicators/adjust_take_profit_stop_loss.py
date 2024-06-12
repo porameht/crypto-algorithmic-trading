@@ -32,13 +32,13 @@ def adjust_take_profit_stop_loss(kl):
     macd = ta.trend.macd_diff(kl.Close)
 
     if rsi.iloc[-1] > 70 and macd.iloc[-1] < 0:
-        tp = 0.008  # Lower TP level for overbought conditions
-        sl = 0.005  # Lower SL level for overbought conditions
+        tp = 0.08  # Lower TP level for overbought conditions
+        sl = 0.05  # Lower SL level for overbought conditions
     elif rsi.iloc[-1] < 30 and macd.iloc[-1] > 0:
-        tp = 0.018  # Higher TP level for oversold conditions
-        sl = 0.015  # Higher SL level for oversold conditions
+        tp = 0.18  # Higher TP level for oversold conditions
+        sl = 0.15  # Higher SL level for oversold conditions
     else:
-        tp = 0.012  # Default TP level
-        sl = 0.008  # Default SL level
+        tp = 0.12  # Default TP level
+        sl = 0.08  # Default SL level
     
     return tp, sl

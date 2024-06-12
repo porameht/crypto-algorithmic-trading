@@ -26,7 +26,6 @@ symbols = session.get_tickers()
 
 console = Console()
 
-
 def run_bot():
     print('Bot is running...')
     while True:
