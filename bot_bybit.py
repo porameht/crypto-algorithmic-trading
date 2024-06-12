@@ -40,7 +40,7 @@ def run_bot():
             table.add_column("Value", style="magenta")
 
             table.add_row("💰 Account balance", f"{balance} USDT")
-            table.add_row("⏱️  Timeframe", f"{timeframe} minutes")
+            table.add_row("⏱️ Timeframe", f"{timeframe} minutes")
 
             try:
                 positions = session.get_positions(200)
