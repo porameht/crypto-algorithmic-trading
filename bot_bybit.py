@@ -74,8 +74,7 @@ def run_bot():
                 # for i in tqdm(range(60, 0, -1)):
                 sleep(60)
 
-        # for i in tqdm(range(100, 0, -5)):
-        sleep(500)
+        sleep(120)
 
 if __name__ == "__main__":
     run_bot()
