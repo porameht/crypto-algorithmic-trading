@@ -1,11 +1,15 @@
+import asyncio
 from Bybit import Bybit
 from time import sleep
 import os
 from tqdm import tqdm
 from yaspin import yaspin
 from rich import print
+from rich.table import Table
+from rich.console import Console
 
 from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
+from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
 from indicators.rsi_basic_signal import rsi_basic_signal
 
 api = os.getenv('API_BYBIT', None)
@@ -16,57 +20,112 @@ session = Bybit(api, secret, accountType)
 
 mode = 1  # 1 - Isolated, 0 - Cross
 leverage = 10  # 10x
-timeframe = 15 # 15 minutes
-qty = 1 # Amount of USDT for one order
-max_positions = 50 # max 10 positions
+timeframe = 30 # 15 minutes
+qty = 10 # Amount of USDT for one order
+max_positions = 10 # max 10 positions
 
 symbols = session.get_tickers()
 
-def run_bot():
-    print('Bot is running...')
-    while True:
+console = Console()
+
+# def run_bot():
+#     print('Bot is running...')
+#     balance = session.get_balance()
+#     if balance is None or symbols is None:
+#         print('❌ Cant connect')
+#         sleep(120)
+#     if balance is not None and symbols is not None:
+#         # Create a table for account balance and P&L
+#         table = Table(title="Account Overview")
+#         table.add_column("Metric", style="cyan")
+#         table.add_column("Value", style="magenta")
+
+#         table.add_row("💰 Account balance", f"{balance} USDT")
+#         table.add_row("⏱️  Timeframe", f"{timeframe} minutes")
+
+#         try:
+#             positions = session.get_positions(200)
+#             last_pnl = session.get_last_pnl(100)
+#             current_pnl = session.get_current_pnl()
+            
+#             table.add_row("📂 Opened positions", f"{len(positions)}")
+#             table.add_row("💰 Last 100 P&L", f"{last_pnl} USDT")
+#             table.add_row("💹 Current P&L", f"{current_pnl} USDT")
+
+#             console.print(table)
+
+#             for i, elem in enumerate(symbols, start=1):
+#                 if len(positions) >= max_positions:
+#                     break
+#                 with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
+#                     signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
+                    
+#                 if signal == 'up' and not elem in positions:
+#                     tp, sl = adjust_take_profit_stop_loss(kl)
+#                     session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
+#                     sleep(1)
+#                 if signal == 'down' and not elem in positions:
+#                     tp, sl = adjust_take_profit_stop_loss(kl)
+#                     session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
+#                     sleep(1)
+
+#         except Exception as err:
+#             print(err)
+#             print('No connection')
+#             for i in tqdm(range(60, 0, -1)):
+#                 sleep(1)
+
+#     for i in tqdm(range(100, 0, -5)):
+#         sleep(1)
+
+
+async def run_bot(bot_status):
+    while bot_status == "Running":
         balance = session.get_balance()
         if balance is None or symbols is None:
             print('❌ Cant connect')
-            sleep(120)
-        if balance is not None and symbols is not None:
-            print(f'💰 Account balance: {balance} USDT')
-            print(f'⏱️  Timeframe: {timeframe} minutes')
-            try:
-                positions = session.get_positions(200)
-                print(f'📂 Opened positions: {len(positions)}')
-                last_pnl = session.get_last_pnl(100)
-                print(f'💰 Last 100 P&L: {last_pnl} USDT')
-                current_pnl = session.get_current_pnl()
-                print(f'💹 Current P&L: {current_pnl} USDT')
-                for i, elem in enumerate(symbols, start=1):
-                    if len(positions) >= max_positions:
-                        break
-                    with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
-                        signal = rsi_basic_signal(session, elem, timeframe, 20)
-                    if signal == 'up' and not elem in positions:
-                        print(f'✅ Found BUY signal for {elem}')
-                        kl = session.klines(elem, timeframe)
-                        tp, sl = adjust_take_profit_stop_loss(kl)
-                        session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
-                        sleep(1)
-                    if signal == 'down' and not elem in positions:
-                        print(f'✅ Found SELL signal for {elem}')
-                        kl = session.klines(elem, timeframe)
-                        tp, sl = adjust_take_profit_stop_loss(kl)
-                        session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
-                        sleep(1)
+            await asyncio.sleep(120)
+            continue
 
-            except Exception as err:
-                print(err)
-                print('No connection')
-                for i in tqdm(range(60, 0, -1)):
-                    sleep(1)
+        # Create a table for account balance and P&L
+        table = Table(title="Account Overview")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="magenta")
+
+        table.add_row("💰 Account balance", f"{balance} USDT")
+        table.add_row("⏱️  Timeframe", f"{timeframe} minutes")
+
+        try:
+            positions = session.get_positions(200)
+            last_pnl = session.get_last_pnl(100)
+            current_pnl = session.get_current_pnl()
+            
+            table.add_row("📂 Opened positions", f"{len(positions)}")
+            table.add_row("💰 Last 100 P&L", f"{last_pnl} USDT")
+            table.add_row("💹 Current P&L", f"{current_pnl} USDT")
+
+            console.print(table)
+
+            for i, elem in enumerate(symbols, start=1):
+                if len(positions) >= max_positions:
+                    break
+                with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
+                    signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
+                    
+                if signal == 'up' and not elem in positions:
+                    tp, sl = adjust_take_profit_stop_loss(kl)
+                    session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
+                    await asyncio.sleep(1)
+                if signal == 'down' and not elem in positions:
+                    tp, sl = adjust_take_profit_stop_loss(kl)
+                    session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
+                    await asyncio.sleep(1)
+
+        except Exception as err:
+            print(err)
+            print('No connection')
+            for i in tqdm(range(60, 0, -1)):
+                await asyncio.sleep(1)
 
         for i in tqdm(range(100, 0, -5)):
-            sleep(1)            
-            
-
-
-if __name__ == "__main__":
-    run_bot()
+            await asyncio.sleep(1)

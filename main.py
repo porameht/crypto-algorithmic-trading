@@ -1,25 +1,48 @@
+import asyncio
 from fastapi import FastAPI
-from dotenv import load_dotenv
-import threading
 from fastapi.responses import HTMLResponse
+from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+import os
+
 import uvicorn
+import bot_bybit
+from Bybit import Bybit
+from tqdm import tqdm
+from yaspin import yaspin
+from rich import print
+from rich.table import Table
+from rich.console import Console
+from time import sleep
+
+from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
+from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
+from indicators.rsi_basic_signal import rsi_basic_signal
 
 load_dotenv()
-import bot_bybit
 
-app = FastAPI()
-
-bot_status = "Not started"
-
-def start():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global bot_status
     bot_status = "Running"
-    bot_bybit.run_bot()
+    print('Bot is starting...')
+    asyncio.create_task(bot_bybit.run_bot(bot_status))
+    async with bot_context_manager():
+        yield
+    # Stop the bot here
+    print('Bot is stopping...')
     bot_status = "Stopped"
+    bot_bybit.run_bot(bot_status)
+    
 
-# @app.get("/status")
-# async def status():
-#     return {"status": bot_status}
+@asynccontextmanager
+async def bot_context_manager():
+    try:
+        yield
+    finally:
+        print('Cleaning up bot context...')
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
@@ -28,7 +51,6 @@ async def root():
         <head>
             <title>Trading Bot</title>
             <style>
-                /* ...existing CSS... */
                 body {{
                     background-color: #282c34;
                     color: white;
@@ -36,12 +58,12 @@ async def root():
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    width: 100%; /* full width */
-                    height: 100%; /* full height */
+                    width: 100%;
+                    height: 100%;
                     font-family: Arial, sans-serif;
-                    margin: 0; /* remove default margin */
-                    padding: 0; /* remove default padding */
-                    overflow: hidden; /* disable scrolling */
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
                 }}
                 #status {{
                     color: {'#00ff00' if bot_status == 'Running' else '#ff0000'};
@@ -64,18 +86,5 @@ async def root():
     </html>
     """
 
-# ...existing threading code...
-# def start():
-#     bot_bybit.run_bot()
-
-# use when uvicorn main:app --reload
-# bot_thread = threading.Thread(target=start)
-# bot_thread.daemon = True  # Set the thread as a daemon
-# bot_thread.start()
-
-# use when python main.py
 if __name__ == "__main__":
-    bot_thread = threading.Thread(target=start)
-    bot_thread.daemon = True  # Set the thread as a daemon
-    bot_thread.start()
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run("main:app", host="0.0.0.0", port=80, reload=True)

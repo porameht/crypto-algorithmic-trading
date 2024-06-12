@@ -154,26 +154,34 @@ class Bybit:
                 print(err)
 
     def place_order_market(self, symbol, side, mode, leverage, qty=10, tp=0.012, sl=0.009):
+        # Set trading mode and leverage
         self.set_mode(symbol, mode, leverage)
         sleep(0.5)
         self.set_leverage(symbol, leverage)
         sleep(0.5)
+        
+        # Get price and quantity precisions
         price_precision = self.get_precisions(symbol)[0]
         qty_precision = self.get_precisions(symbol)[1]
+        
+        # Get the current mark price
         mark_price = self.session.get_tickers(
             category='linear',
             symbol=symbol
         )['result']['list'][0]['markPrice']
         mark_price = float(mark_price)
+        
+        # Log the order details
         print(f'✅ Placing {side} order for {symbol}. Mark price: {mark_price}')
+        
+        # Calculate order quantity based on mark price
         order_qty = round(qty / mark_price, qty_precision)
         sleep(2)
-        
 
-        if side == 'buy':
-            try:
-                tp_price = round(mark_price + mark_price * tp, price_precision)
-                sl_price = round(mark_price - mark_price * sl, price_precision)
+        try:
+            if side.lower() == 'buy':
+                tp_price = round(mark_price * (1 + tp), price_precision)
+                sl_price = round(mark_price * (1 - sl), price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,
@@ -189,13 +197,9 @@ class Bybit:
                 print(f'Stoploss: {sl_price}')
                 print(resp['retMsg'])
 
-            except Exception as err:
-                print(err)
-
-        if side == 'sell':
-            try:
-                tp_price = round(mark_price - mark_price * tp, price_precision)
-                sl_price = round(mark_price + mark_price * sl, price_precision)
+            elif side.lower() == 'sell':
+                tp_price = round(mark_price * (1 - tp), price_precision)
+                sl_price = round(mark_price * (1 + sl), price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,
@@ -210,8 +214,12 @@ class Bybit:
                 print(f'Takeprofit: {tp_price}')
                 print(f'Stoploss: {sl_price}')
                 print(resp['retMsg'])
-            except Exception as err:
-                print(err)
+                
+            else:
+                print("Invalid side specified. Use 'buy' or 'sell'.")
+
+        except Exception as err:
+            print(err)
 
     def place_order_limit(self, symbol, side, mode, leverage, qty=10, tp=0.012, sl=0.009):
         self.set_mode(symbol, mode, leverage)
