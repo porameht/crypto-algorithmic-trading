@@ -29,7 +29,6 @@ console = Console()
 def run_bot():
     print('Bot is running...')
     while True:
-        print('🔎 Process Scanning...')
         balance = session.get_balance()
         if balance is None or symbols is None:
             print('❌ Cant connect')
