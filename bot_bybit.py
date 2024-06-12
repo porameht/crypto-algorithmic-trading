@@ -29,19 +29,18 @@ console = Console()
 def run_bot():
     print('Bot is running...')
     while True:
-        print('🔎 Process Scanning...')
         balance = session.get_balance()
         if balance is None or symbols is None:
             print('❌ Cant connect')
             sleep(120)
         if balance is not None and symbols is not None:
             # Create a table for account balance and P&L
-            table = Table(title="Account Overview")
+            table = Table(title="📊 Account Information", show_header=True, header_style="bold magenta")
             table.add_column("Metric", style="cyan")
             table.add_column("Value", style="magenta")
 
             table.add_row("💰 Account balance", f"{balance} USDT")
-            table.add_row("⏱️ Timeframe", f"{timeframe} minutes")
+            table.add_row("⏱️  Timeframe ", f"{timeframe} minutes")
 
             try:
                 positions = session.get_positions(200)
@@ -75,6 +74,7 @@ def run_bot():
                 # for i in tqdm(range(60, 0, -1)):
                 sleep(60)
 
+        print(f'🔎 Process Scanning... {len(symbols)} Charts')
         sleep(60)
 
 if __name__ == "__main__":
