@@ -1,7 +1,7 @@
 from Bybit import Bybit
 from time import sleep
 import os
-from tqdm import tqdm
+# from tqdm import tqdm
 # from yaspin import yaspin
 from rich import print
 from rich.table import Table
@@ -71,11 +71,11 @@ def run_bot():
             except Exception as err:
                 print(err)
                 print('No connection')
-                for i in tqdm(range(60, 0, -1)):
-                    sleep(1)
+                # for i in tqdm(range(60, 0, -1)):
+                sleep(60)
 
-        for i in tqdm(range(100, 0, -5)):
-            sleep(1)
+        # for i in tqdm(range(100, 0, -5)):
+        sleep(500)
 
 if __name__ == "__main__":
     run_bot()
