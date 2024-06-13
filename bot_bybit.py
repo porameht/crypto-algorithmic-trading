@@ -9,6 +9,7 @@ from rich.console import Console
 
 from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
+from indicators.jim_simons import jim_simons_signal
 
 api = os.getenv('API_BYBIT', None)
 secret = os.getenv('SECRET_BYBIT', None)
@@ -18,7 +19,7 @@ session = Bybit(api, secret, accountType)
 
 mode = 1  # 1 - Isolated, 0 - Cross
 leverage = 10  # 10x
-timeframe = 30 # 15 minutes
+timeframe = 5 # 15 minutes
 qty = 10 # Amount of USDT for one order
 max_positions = 10 # max 10 positions
 
@@ -56,16 +57,19 @@ def run_bot():
                 for i, elem in enumerate(symbols, start=1):
                     if len(positions) >= max_positions:
                         break
+                    kl = session.klines(elem, timeframe)
+
                     # with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
-                    signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
+                    # signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
                         
+                    signal, take_profit, stop_loss, kl = jim_simons_signal(kl)
                     if signal == 'up' and not elem in positions:
-                        tp, sl = adjust_take_profit_stop_loss(kl)
-                        session.place_order_market(elem, 'buy', mode, leverage, qty, tp, sl)
+                        # tp, sl = adjust_take_profit_stop_loss(kl)
+                        session.place_order_market(elem, 'buy', mode, leverage, qty, take_profit, stop_loss)
                         sleep(1)
                     if signal == 'down' and not elem in positions:
-                        tp, sl = adjust_take_profit_stop_loss(kl)
-                        session.place_order_market(elem, 'sell', mode, leverage, qty, tp, sl)
+                        # tp, sl = adjust_take_profit_stop_loss(kl)
+                        session.place_order_market(elem, 'sell', mode, leverage, qty, take_profit, stop_loss)
                         sleep(1)
 
             except Exception as err:
