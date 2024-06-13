@@ -62,7 +62,8 @@ def run_bot():
                     # with yaspin(text=f'Scanning {i} Signal {elem}... ', color="yellow") as spinner:
                     # signal, kl = combined_rsi_macd_signal(session, elem, timeframe)
                         
-                    signal, take_profit, stop_loss, kl = jim_simons_signal(kl)
+                    signal, take_profit, stop_loss = jim_simons_signal(session, elem, timeframe)
+                    
                     if signal == 'up' and not elem in positions:
                         # tp, sl = adjust_take_profit_stop_loss(kl)
                         session.place_order_market(elem, 'buy', mode, leverage, qty, take_profit, stop_loss)
@@ -79,7 +80,7 @@ def run_bot():
                 sleep(60)
 
         print(f'🔎 Process Scanning... {len(symbols)} Charts')
-        sleep(60)
+        sleep(20)
 
 if __name__ == "__main__":
     run_bot()

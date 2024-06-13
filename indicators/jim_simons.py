@@ -79,15 +79,15 @@ def jim_simons_signal(session, symbol, timeframe):
         stop_loss = min(ta.trend.EMAIndicator(kl.Close, window=12).ema_indicator().iloc[-1],
                         ta.trend.EMAIndicator(kl.Close, window=26).ema_indicator().iloc[-1])
         take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5)
-        return 'up', take_profit, stop_loss, kl
+        return 'up', take_profit, stop_loss
     elif dax_signal == 'sell' and rsi_bb_signal == 'sell' and kl.Close.iloc[-1] < kl.Open.iloc[-1]:
         entry_price = kl.Close.iloc[-1]
         stop_loss = max(ta.trend.EMAIndicator(kl.Close, window=12).ema_indicator().iloc[-1],
                         ta.trend.EMAIndicator(kl.Close, window=26).ema_indicator().iloc[-1])
         take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5)
-        return 'down', take_profit, stop_loss, kl
+        return 'down', take_profit, stop_loss
     else:
-        return 'none', None, None, None, kl
+        return 'none', None, None
 
 
 
