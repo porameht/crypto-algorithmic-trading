@@ -88,8 +88,3 @@ def jim_simons_signal(session, symbol, timeframe):
         return 'down', take_profit, stop_loss
     else:
         return 'none', None, None
-
-
-
-import ta
-import numpy as np
