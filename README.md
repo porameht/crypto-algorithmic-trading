@@ -22,7 +22,7 @@ This project implements a trading bot that interacts with the Bybit API to execu
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/trading-bot-bybit.git
+   git clone https://github.com/porameht/trading-bot.git
    cd trading-bot-bybit
    ```
 
