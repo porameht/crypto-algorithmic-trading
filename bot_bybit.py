@@ -5,6 +5,7 @@ from rich.table import Table
 from rich.console import Console
 from Bybit import Bybit
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
+from indicators.display_account_info import display_account_info
 from indicators.jim_simons import jim_simons_signal
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -43,24 +44,6 @@ max_positions = 10  # Max 10 positions
 symbols = session_main.get_tickers()
 console = Console()
 
-def display_account_info(session, title):
-    balance = session.get_balance()
-    table = Table(title=title, show_header=True, header_style="bold magenta")
-    table.add_column("Metric", style="cyan")
-    table.add_column("Value", style="magenta")
-    table.add_row("💰 Account balance", f"{balance} USDT")
-    table.add_row("⏱️  Timeframe ", f"{timeframe} minutes")
-    try:
-        positions = session.get_positions(200)
-        last_pnl = session.get_last_pnl(100)
-        current_pnl = session.get_current_pnl()
-        table.add_row("📂 Opened positions", f"{len(positions)}")
-        table.add_row("💰 Last 100 P&L", f"{last_pnl} USDT")
-        table.add_row("💹 Current P&L", f"{current_pnl} USDT")
-    except Exception as err:
-        print(f"Error retrieving account info: {err}")
-    return table
-
 def execute_trades(session, signal_func, symbols, mode, leverage, qty, positions):
     for elem in symbols:
         if len(positions) >= max_positions:
@@ -86,8 +69,8 @@ def run_bot():
             sleep(120)
             continue
 
-        table_main = display_account_info(session_main, "📊 Account Information Main")
-        table_worker1 = display_account_info(session_worker1, "📊 Account Information Worker1")
+        table_main = display_account_info(session_main, "📊 Account Information Main", timeframe)
+        table_worker1 = display_account_info(session_worker1, "📊 Account Information Worker1", timeframe)
 
         console.print(table_main)
         console.print(table_worker1)

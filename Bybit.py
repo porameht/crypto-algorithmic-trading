@@ -29,7 +29,7 @@ class Bybit:
             )['result']['list']
             pos = []
             for elem in resp:
-                pos.append(elem['symbol'])
+                pos.append(elem['symbol'], elem['avgPrice'], elem['side'], elem['size'], elem['entryPrice'], elem['takeProfit'], elem['stopLoss'])
             return pos
         except Exception as err:
             print(err)
