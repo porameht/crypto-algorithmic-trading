@@ -2,10 +2,15 @@ import ta
 
 from indicators.adjust_take_profit_stop_loss import adjust_take_profit_stop_loss
 
-def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5):
+def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5, is_sell=False):
     tp_distance = stop_loss_distance * risk_to_reward
-    take_profit = entry_price + tp_distance
-    stop_loss = entry_price - stop_loss_distance
+    if is_sell:
+        take_profit = entry_price - tp_distance
+        stop_loss = entry_price + stop_loss_distance
+    else:
+        take_profit = entry_price + tp_distance
+        stop_loss = entry_price - stop_loss_distance
+
     return take_profit, stop_loss
 
 def combined_rsi_macd_signal(session, symbol, timeframe):
@@ -22,7 +27,7 @@ def combined_rsi_macd_signal(session, symbol, timeframe):
         take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5)
         return 'up', take_profit, stop_loss
     elif rsi.iloc[-2] > 70 and rsi.iloc[-1] < 70 and macd.iloc[-1] < 0:
-        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5)
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5, is_sell=True)
         return 'down', take_profit, stop_loss
     else:
         return 'none', None, None
