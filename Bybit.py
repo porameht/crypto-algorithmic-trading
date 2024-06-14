@@ -187,8 +187,8 @@ class Bybit:
 
         try:
             if side.lower() == 'buy':
-                tp_price = round(mark_price * (1 + tp), price_precision)
-                sl_price = round(mark_price * (1 - sl), price_precision)
+                tp_price = round(tp, price_precision)
+                sl_price = round(sl, price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,
@@ -205,8 +205,8 @@ class Bybit:
                 print(resp['retMsg'])
 
             elif side.lower() == 'sell':
-                tp_price = round(mark_price * (1 - tp), price_precision)
-                sl_price = round(mark_price * (1 + sl), price_precision)
+                tp_price = round(tp, price_precision)
+                sl_price = round(sl, price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,

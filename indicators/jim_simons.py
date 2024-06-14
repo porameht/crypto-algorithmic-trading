@@ -69,12 +69,12 @@ def get_rsi_bb_ema_dispersion_signal(kl):
 #     return tp, stop_loss
 
 def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=1.5):
+    stop_loss_distance = abs(entry_price - stop_loss)
+    tp_distance = stop_loss_distance * risk_to_reward
     if direction == 'long':
-        tp_cal = entry_price + (entry_price - stop_loss)
-        take_profit = tp_cal * risk_to_reward
+        take_profit = entry_price + tp_distance
     else:
-        tp_cal = entry_price - (stop_loss - entry_price)
-        take_profit = tp_cal * risk_to_reward
+        take_profit = entry_price - tp_distance
     
     return take_profit, stop_loss
 
