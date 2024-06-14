@@ -29,7 +29,14 @@ class Bybit:
             )['result']['list']
             pos = []
             for elem in resp:
-                pos.append(elem['symbol'])
+                pos.append({
+                    'symbol': elem['symbol'],
+                    'avgPrice': elem['avgPrice'],
+                    'side': elem['side'],
+                    'size': elem['size'],
+                    'takeProfit': elem['takeProfit'],
+                    'stopLoss': elem['stopLoss']
+                })
             return pos
         except Exception as err:
             print(err)
@@ -180,8 +187,8 @@ class Bybit:
 
         try:
             if side.lower() == 'buy':
-                tp_price = round(mark_price * (1 + tp), price_precision)
-                sl_price = round(mark_price * (1 - sl), price_precision)
+                tp_price = round(tp, price_precision)
+                sl_price = round(sl, price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,
@@ -198,8 +205,8 @@ class Bybit:
                 print(resp['retMsg'])
 
             elif side.lower() == 'sell':
-                tp_price = round(mark_price * (1 - tp), price_precision)
-                sl_price = round(mark_price * (1 + sl), price_precision)
+                tp_price = round(tp, price_precision)
+                sl_price = round(sl, price_precision)
                 resp = self.session.place_order(
                     category='linear',
                     symbol=symbol,
