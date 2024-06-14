@@ -26,7 +26,7 @@ def main():
             'accountType': config['accountType_worker1'],
             'mode': config['mode'],
             'leverage': config['leverage'],
-            'timeframe': config['timeframe'],
+            'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
             'signal_func': combined_rsi_macd_signal,
