@@ -1,8 +1,6 @@
 import os
 from time import sleep
 from rich import print
-from rich.table import Table
-from rich.console import Console
 from Bybit import Bybit
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
 from indicators.display_account_info import display_account_info
@@ -42,7 +40,6 @@ max_positions = 10  # Max 10 positions
 
 # Retrieve symbols
 symbols = session_main.get_tickers()
-console = Console()
 
 def execute_trades(session, signal_func, symbols, mode, leverage, qty, positions):
     for elem in symbols:
@@ -69,11 +66,8 @@ def run_bot():
             sleep(120)
             continue
 
-        table_main = display_account_info(session_main, "📊 Account Information Main", timeframe)
-        table_worker1 = display_account_info(session_worker1, "📊 Account Information Worker1", timeframe)
-
-        console.print(table_main)
-        console.print(table_worker1)
+        display_account_info(session_main, "📊 Account Information Main", timeframe)
+        display_account_info(session_worker1, "📊 Account Information Worker1", timeframe)
 
         try:
             positions_main = session_main.get_positions(200)

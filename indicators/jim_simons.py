@@ -64,9 +64,20 @@ def get_rsi_bb_ema_dispersion_signal(kl):
 #     else:
 #         return 'none'
 
-def calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5):
-    tp = entry_price + (entry_price - stop_loss) * risk_to_reward
-    return tp, stop_loss
+# def calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5):
+#     tp = entry_price + (entry_price - stop_loss) * risk_to_reward
+#     return tp, stop_loss
+
+def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=1.5):
+    if direction == 'long':
+        tp_cal = entry_price + (entry_price - stop_loss)
+        take_profit = tp_cal * risk_to_reward
+    else:
+        tp_cal = entry_price - (stop_loss - entry_price)
+        take_profit = tp_cal * risk_to_reward
+    
+    return take_profit, stop_loss
+
 
 def jim_simons_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
@@ -78,13 +89,13 @@ def jim_simons_signal(session, symbol, timeframe):
         entry_price = kl.Close.iloc[-1]
         stop_loss = min(ta.trend.EMAIndicator(kl.Close, window=12).ema_indicator().iloc[-1],
                         ta.trend.EMAIndicator(kl.Close, window=26).ema_indicator().iloc[-1])
-        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5)
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5, direction='long')
         return 'up', take_profit, stop_loss
     elif dax_signal == 'sell' and rsi_bb_signal == 'sell' and kl.Close.iloc[-1] < kl.Open.iloc[-1]:
         entry_price = kl.Close.iloc[-1]
         stop_loss = max(ta.trend.EMAIndicator(kl.Close, window=12).ema_indicator().iloc[-1],
                         ta.trend.EMAIndicator(kl.Close, window=26).ema_indicator().iloc[-1])
-        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5)
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=1.5, direction='short')
         return 'down', take_profit, stop_loss
     else:
         return 'none', None, None
