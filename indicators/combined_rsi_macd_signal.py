@@ -18,7 +18,7 @@ def combined_rsi_macd_ma_signal(session, symbol, timeframe):
     entry_price = kl.Close.iloc[-1]
 
     # Adjusted RSI window to 14
-    rsi = ta.momentum.RSIIndicator(kl.Close, window=14).rsi()
+    rsi = ta.momentum.RSIIndicator(kl.Close, window=20).rsi()
     macd = ta.trend.MACD(kl.Close).macd_diff()
     atr = ta.volatility.AverageTrueRange(kl.High, kl.Low, kl.Close, window=20).average_true_range()
 
