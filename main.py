@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from config import load_config
 from TradingBotBybit import TradingBotBybit
-from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
+from indicators.combined_rsi_macd_signal import combined_rsi_macd_ma_signal
 from indicators.jim_simons import jim_simons_signal
 
 def main():
@@ -29,7 +29,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_macd_signal,
+            'signal_func': combined_rsi_macd_ma_signal,
             'title': config['title_api_worker1']
         }
     ]
