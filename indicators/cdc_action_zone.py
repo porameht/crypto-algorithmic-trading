@@ -1,27 +1,25 @@
 import ta
 
-def cdc_action_zone(session, symbol, timeframe, fast_period=12, slow_period=26, smoothing_period=1):
+def cdc_action_zone(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
-    price = kl.Close
-    
-    fast_ema = ta.trend.EMAIndicator(price, window=fast_period).ema_indicator()
-    slow_ema = ta.trend.EMAIndicator(price, window=slow_period).ema_indicator()
-    smoothed_price = ta.trend.EMAIndicator(price, window=smoothing_period).ema_indicator()
-    
-    bull = fast_ema > slow_ema
-    bear = fast_ema < slow_ema
+    xsrc = kl.Close
+    xprd1 = 12
+    xprd2 = 26
+    xsmooth = 1
 
-    green = bull and smoothed_price > fast_ema  # Buy
-    red = bear and smoothed_price < fast_ema    # Sell
+    xPrice = ta.trend.EMAIndicator(xsrc, window=xsmooth).ema_indicator()
+    FastMA = ta.trend.EMAIndicator(xPrice, window=xprd1).ema_indicator()
+    SlowMA = ta.trend.EMAIndicator(xPrice, window=xprd2).ema_indicator()
 
-    buy_signal = green and not green.shift(1).fillna(False)
-    sell_signal = red and not red.shift(1).fillna(False)
+    Bull = FastMA > SlowMA
+    Bear = FastMA < SlowMA
 
-    if buy_signal.iloc[-1]:
-        print(f'📈 Buy signal for {symbol}')
-        return 'buy'
-    elif sell_signal.iloc[-1]:
-        print(f'📉 Sell signal for {symbol}')
-        return 'sell'
-    else:
-        return 'none'
+    Green = Bull & (xPrice > FastMA)
+    Blue = Bear & (xPrice > FastMA) & (xPrice > SlowMA)
+    LBlue = Bear & (xPrice > FastMA) & (xPrice < SlowMA)
+
+    Red = Bear & (xPrice < FastMA)
+    Orange = Bull & (xPrice < FastMA) & (xPrice < SlowMA)
+    Yellow = Bull & (xPrice < FastMA) & (xPrice > SlowMA)
+
+    return Green, Blue, LBlue, Red, Orange, Yellow
