@@ -24,12 +24,11 @@ def combined_rsi_macd_ma_signal(session, symbol, timeframe):
     stop_loss_distance = round(atr.iloc[-1], session.get_precisions(symbol)[0])
 
     # Additional trend filter using 50-period moving average
-    ma = ta.trend.SMAIndicator(kl.Close, window=50).sma_indicator()
-
-    if rsi.iloc[-2] < 30 and rsi.iloc[-1] > 30 and macd.iloc[-1] > 0 and kl.Close.iloc[-1] > ma.iloc[-1]:
+    # ma = ta.trend.SMAIndicator(kl.Close, window=50).sma_indicator()
+    if rsi.iloc[-2] < 30 and rsi.iloc[-1] > 30 and macd.iloc[-1] > 0:
         take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
         return 'up', take_profit, stop_loss
-    elif rsi.iloc[-2] > 70 and rsi.iloc[-1] < 70 and macd.iloc[-1] < 0 and kl.Close.iloc[-1] < ma.iloc[-1]:
+    elif rsi.iloc[-2] > 70 and rsi.iloc[-1] < 70 and macd.iloc[-1] < 0:
         take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
         return 'down', take_profit, stop_loss
     else:
