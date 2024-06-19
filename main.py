@@ -1,12 +1,15 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from TelegramBot import TelegramBot
 from config import load_config
 from TradingBotBybit import TradingBotBybit
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_ma_cdc_signal, combined_rsi_macd_ma_signal
 from indicators.jim_simons import jim_simons_signal
 
+    
 def main():
     config = load_config()
-
+    # telegram = TelegramBot(config)
+    # telegram.send_message_group("🤖 Bot is running...")
     session_configs = [
         {
             'api': config['api_main'],

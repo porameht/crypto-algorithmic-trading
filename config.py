@@ -15,12 +15,14 @@ def load_config():
         'title_api_worker1': 'Worker 1',
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
-        'timeframe': 30,
+        'timeframe': 'D',
         'timeframe_worker1': 5,  # 15 minutes
         'qty': 10,  # Amount of USDT for one order
         'max_positions': 10,  # Max 10 positions
-        'line_channel_access_token': os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None),
-        "line_user_id": os.getenv('LINE_USER_ID', None)
+        
+        'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', None),
+        "telegram_user_id": os.getenv('TELEGRAM_USER_ID', None),
+        'telegram_group_id': os.getenv('TELEGRAM_GROUP_ID', None)
     }
 
     return config
