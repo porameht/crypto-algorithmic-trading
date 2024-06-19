@@ -18,7 +18,7 @@ def load_config():
         'timeframe': 'D',
         'timeframe_worker1': 5,  # 15 minutes
         'qty': 10,  # Amount of USDT for one order
-        'max_positions': 10,  # Max 10 positions
+        'max_positions': 7,  # Max 10 positions
         
         'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', None),
         "telegram_user_id": os.getenv('TELEGRAM_USER_ID', None),
