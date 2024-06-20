@@ -1,7 +1,6 @@
 import ta
 from indicators.adjust_take_profit_stop_loss import calculate_tp_sl
 from indicators.cdc_action_zone import cdc_action_zone
-from indicators.macd_signal import macd_signal
 
 def combined_rsi_macd_ma_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)

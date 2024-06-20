@@ -20,8 +20,6 @@ class TradingBotBybit:
 
     def execute_trades(self, positions):
         for elem in self.symbols:
-            if len(positions) >= self.max_positions:
-                break
             try:
                 signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
                 if signal == 'up' and elem not in positions:
@@ -47,6 +45,8 @@ class TradingBotBybit:
 
             try:
                 positions = self.session.get_positions(200)
+                if len(positions) >= self.max_positions:
+                    break
 
                 self.execute_trades(positions)
 

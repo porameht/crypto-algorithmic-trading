@@ -4,7 +4,6 @@ from config import load_config
 from TradingBotBybit import TradingBotBybit
 from indicators.combined_macd_cdc_signal import combined_macd_cdc_signal
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_ma_cdc_signal
-from indicators.jim_simons import jim_simons_signal
 
     
 def main():
