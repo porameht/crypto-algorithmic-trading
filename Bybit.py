@@ -177,10 +177,6 @@ class Bybit:
             symbol=symbol
         )['result']['list'][0]['markPrice']
         mark_price = float(mark_price)
-        
-        # Log the order details
-        print(f'✅ Placing {side} order for {symbol}. Mark price: {mark_price}')
-        
         # Calculate order quantity based on mark price
         order_qty = round(qty / mark_price, qty_precision)
         sleep(2)
@@ -203,6 +199,7 @@ class Bybit:
                 print(f'Takeprofit: {tp_price}')
                 print(f'Stoploss: {sl_price}')
                 print(resp['retMsg'])
+                return resp['retMsg']
 
             elif side.lower() == 'sell':
                 tp_price = round(tp, price_precision)
@@ -221,7 +218,7 @@ class Bybit:
                 print(f'Takeprofit: {tp_price}')
                 print(f'Stoploss: {sl_price}')
                 print(resp['retMsg'])
-                
+                return resp['retMsg']
             else:
                 print("Invalid side specified. Use 'buy' or 'sell'.")
 
@@ -240,7 +237,6 @@ class Bybit:
             symbol=symbol
         )['result']['list'][0]['lastPrice']
         limit_price = float(limit_price)
-        print(f'✅ Placing {side} order for {symbol}. Limit price: {limit_price}')
         order_qty = round(qty / limit_price, qty_precision)
         sleep(2)
         if side == 'buy':

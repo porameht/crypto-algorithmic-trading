@@ -11,7 +11,7 @@ class AccountInfoDisplayer:
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="magenta")
         table.add_row("💰 Account balance", f"{balance} USDT")
-        table.add_row("⏱️  Timeframe ", f"{timeframe} minutes")
+        table.add_row("⏱️  Timeframe ", f"{timeframe}")
         try:
             positions = session.get_positions(200)
             last_pnl = session.get_last_pnl(100)
