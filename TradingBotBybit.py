@@ -20,19 +20,22 @@ class TradingBotBybit:
 
     def execute_trades(self, positions):
         for elem in self.symbols:
+            if len(positions) >= self.max_positions:
+                break
             try:
                 signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
                 if signal == 'up' and elem not in positions:
                     self.session.place_order_market(elem, 'buy', self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                    positions.append(elem)  # Add the element to positions after placing the order
                     sleep(1)
                 elif signal == 'down' and elem not in positions:
                     self.session.place_order_market(elem, 'sell', self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                    positions.append(elem)  # Add the element to positions after placing the order
                     sleep(1)
             except Exception as err:
                 print(f"Error executing trade for {elem}: {err}")
 
     def run(self):
-        print('Bot is running...')
         while True:
             balance = self.session.get_balance()
 
@@ -45,14 +48,10 @@ class TradingBotBybit:
 
             try:
                 positions = self.session.get_positions(200)
-                if len(positions) >= self.max_positions:
-                    break
-
                 self.execute_trades(positions)
-
             except Exception as err:
                 print(f"Error in main loop: {err}")
                 sleep(60)
 
-            print(f'🔎 Process Scanning... {len(self.symbols)} Charts')
+            print(f'🔎 Process Scanning... {len(self.symbols)} Charts => 🧠 {self.title} signal')
             sleep(20)
