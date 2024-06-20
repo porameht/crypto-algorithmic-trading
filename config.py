@@ -15,8 +15,8 @@ def load_config():
         'title_api_worker1': 'combined_rsi_macd_ma_cdc_signal',
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
-        'timeframe': 60,
-        'timeframe_worker1': 60,  # 15 minutes
+        'timeframe': 5,
+        'timeframe_worker1': 5,  # 15 minutes
         'qty': 10,  # Amount of USDT for one order
         'max_positions': 7,  # Max 10 positions
         
