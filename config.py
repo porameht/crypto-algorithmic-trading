@@ -12,7 +12,7 @@ def load_config():
         'secret_worker1': os.getenv('SECRET_BYBIT_WORKER1', None),
         'accountType_worker1': os.getenv('ACCOUNT_TYPE_WORKER1', None),
         'title_api_main': 'combined_macd_cdc_signal',
-        'title_api_worker1': 'jim_simons_signal',
+        'title_api_worker1': 'combined_rsi_macd_ma_cdc_signal',
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
         'timeframe': 720,
