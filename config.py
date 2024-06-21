@@ -12,7 +12,7 @@ def load_config():
         'secret_worker1': os.getenv('SECRET_BYBIT_WORKER1', None),
         'accountType_worker1': os.getenv('ACCOUNT_TYPE_WORKER1', None),
         'title_api_main': 'RSI + CDC ACTION ZONE',
-        'title_api_worker1': 'RSI',
+        'title_api_worker1': 'RSI + MACD',
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
         'timeframe': 15,

@@ -2,7 +2,7 @@ import ta
 from indicators.adjust_take_profit_stop_loss import calculate_tp_sl
 from indicators.cdc_action_zone import cdc_action_zone
 
-def combined_rsi_macd_ma_signal(session, symbol, timeframe):
+def combined_rsi_macd_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
     entry_price = kl.Close.iloc[-1]
 
@@ -24,12 +24,12 @@ def combined_rsi_macd_ma_signal(session, symbol, timeframe):
     else:
         return 'none', None, None
     
-def combined_rsi_macd_ma_cdc_signal(session, symbol, timeframe):
+def combined_rsi_macd_cdc_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
     entry_price = kl.Close.iloc[-1]
 
     # Combine RSI, MACD, MA, and CDC Action Zone logic
-    signal, take_profit, stop_loss = combined_rsi_macd_ma_signal(session, symbol, timeframe)
+    signal, take_profit, stop_loss = combined_rsi_macd_signal(session, symbol, timeframe)
 
     Green, Blue, LBlue, Red, Orange, Yellow = cdc_action_zone(session, symbol)
     if signal == 'up' and Green.iloc[-1]:
