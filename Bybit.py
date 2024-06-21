@@ -79,13 +79,18 @@ class Bybit:
         try:
             start_time = int((datetime.now() - timedelta(hours=last_hours)).timestamp() * 1000)
             end_time = int(datetime.now().timestamp() * 1000)
-            order_history = self.session.get_closed_pnl(category="linear", limit=100, start_time=start_time, end_time=None)['result']['list']
+            order_history = self.session.get_closed_pnl(category="linear", limit=100, start_time=start_time, end_time=end_time)['result']['list']
             for order in order_history:
+                
+                closed_pnl = float(order['closedPnl'])
+                if closed_pnl < 0:
+                    continue
+                
                 symbol = order['symbol']
                 updated_time = int(order['updatedTime'])  # Convert string to integer
                 updated_datetime = datetime.fromtimestamp(updated_time / 1000)
                 if updated_datetime >= datetime.now() - timedelta(hours=last_hours):
-                    last_order_times[symbol] = updated_datetime
+                    last_order_times[symbol] = updated_datetime, closed_pnl
                     
             return last_order_times
         except Exception as err:
