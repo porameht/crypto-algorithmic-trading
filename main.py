@@ -2,8 +2,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from TelegramBot import TelegramBot
 from config import load_config
 from TradingBotBybit import TradingBotBybit
-from indicators.combined_rsi_cdc_signal import combined_rsi_cdc_signal
-from indicators.combined_rsi_macd_signal import combined_rsi_macd_cdc_signal
+from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
+from indicators.comb_rsi_macd_signal import comb_rsi_macd_cdc_signal
 
     
 def main():
@@ -20,8 +20,7 @@ def main():
             'timeframe': config['timeframe'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_cdc_signal,
-            'title': config['title_api_main']
+            'signal_func': comb_rsi_cdc_signal
         },
         {
             'api': config['api_worker1'],
@@ -32,8 +31,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_macd_cdc_signal,
-            'title': config['title_api_worker1']
+            'signal_func': comb_rsi_macd_cdc_signal
         }
     ]
 

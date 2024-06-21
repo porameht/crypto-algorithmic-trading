@@ -1,27 +1,19 @@
-from datetime import datetime, timedelta
-import logging
 from time import sleep
 from rich import print
 from AccountInfoDisplayer import AccountInfoDisplayer
 from Bybit import Bybit
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 class TradingBotBybit:
     def __init__(self, session_config):
         self.session = Bybit(session_config['api'], session_config['secret'], session_config['accountType'])
         self.displayer = AccountInfoDisplayer()
         self.symbols = self.session.get_tickers()
-
         self.mode = session_config['mode']
         self.leverage = session_config['leverage']
         self.timeframe = session_config['timeframe']
         self.qty = session_config['qty']
         self.max_positions = session_config['max_positions']
         self.signal_func = session_config['signal_func']
-        self.title = session_config['title']
-        
         self.last_order_times = {}
 
     def execute_trades(self, positions):
@@ -39,12 +31,10 @@ class TradingBotBybit:
                 if signal == 'up' and elem not in positions:
                     self.session.place_order_market(elem, 'buy', self.mode, self.leverage, self.qty, take_profit, stop_loss)
                     positions.append(elem)
-                    self.last_order_times[elem] = datetime.now()
                     sleep(1)
                 elif signal == 'down' and elem not in positions:
                     self.session.place_order_market(elem, 'sell', self.mode, self.leverage, self.qty, take_profit, stop_loss)
                     positions.append(elem)
-                    self.last_order_times[elem] = datetime.now()
                     sleep(1)
             except Exception as err:
                 print(f"Error executing trade for {elem}: {err}")
@@ -61,7 +51,7 @@ class TradingBotBybit:
             
             print(self.last_order_times)
 
-            self.displayer.display_account_info(self.session, self.title, self.timeframe)
+            self.displayer.display_account_info(self.session, self.signal_func.__name__, self.timeframe)
 
             try:
                 positions = self.session.get_positions(200)
@@ -70,5 +60,5 @@ class TradingBotBybit:
                 print(f"Error in main loop: {err}")
                 sleep(60)
 
-            print(f'🔎 Process Scanning... {len(self.symbols)} Charts => 🧠 {self.title} signal')
+            print(f'🔎 Process Scanning... {len(self.symbols)} Charts => 🧠 {self.signal_func.__name__} signal')
             sleep(20)

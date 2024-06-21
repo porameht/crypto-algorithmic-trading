@@ -1,7 +1,7 @@
 from indicators.cdc_action_zone import cdc_action_zone
 from indicators.rsi_basic_signal import rsi_basic_signal
     
-def combined_rsi_cdc_signal(session, symbol, timeframe):
+def comb_rsi_cdc_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
     entry_price = kl.Close.iloc[-1]
 

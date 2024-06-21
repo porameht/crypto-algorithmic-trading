@@ -1,5 +1,5 @@
 import ta
-from indicators.adjust_take_profit_stop_loss import calculate_tp_sl
+from indicators.calculate_tp_sl import calculate_tp_sl
 
 def rsi_basic_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)

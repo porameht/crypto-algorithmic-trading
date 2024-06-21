@@ -1,7 +1,7 @@
 from indicators.cdc_action_zone import cdc_action_zone
 from indicators.macd_signal import macd_signal
 
-def combined_macd_cdc_signal(session, symbol, timeframe):
+def comb_macd_cdc_signal(session, symbol, timeframe):
     kl = session.klines(symbol, timeframe)
     entry_price = kl.Close.iloc[-1]
 
