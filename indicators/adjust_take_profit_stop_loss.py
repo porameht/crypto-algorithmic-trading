@@ -71,24 +71,22 @@
 import ta
 
 def adjust_take_profit_stop_loss(kl):
-    # rsi = ta.momentum.RSIIndicator(kl.Close).rsi().iloc[-1]
-    
     rsi = ta.momentum.RSIIndicator(kl.Close, window=20).rsi()
     macd = ta.trend.macd_diff(kl.Close)
 
     if rsi.iloc[-1] > 70 and macd.iloc[-1] < 0:
-        tp = 0.008  # Lower TP level for overbought conditions
+        tp = 0.01  # Lower TP level for overbought conditions
         sl = 0.005  # Lower SL level for overbought conditions
     elif rsi.iloc[-1] < 30 and macd.iloc[-1] > 0:
-        tp = 0.018  # Higher TP level for oversold conditions
-        sl = 0.015  # Higher SL level for oversold conditions
+        tp = 0.02  # Higher TP level for oversold conditions
+        sl = 0.01  # Higher SL level for oversold conditions
     else:
-        tp = 0.012  # Default TP level
+        tp = 0.016  # Default TP level
         sl = 0.008  # Default SL level
     
     return tp, sl
 
-def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=1.5, is_sell=False):
+def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward, is_sell=False):
     tp_distance = stop_loss_distance * risk_to_reward
     if is_sell:
         take_profit = entry_price - tp_distance
