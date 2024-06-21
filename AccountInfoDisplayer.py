@@ -7,8 +7,8 @@ class AccountInfoDisplayer:
 
     def display_account_info(self, session, title, timeframe):
         balance = session.get_balance()
-        table = Table(title=title, show_header=True, header_style="bold magenta")
-        table.add_column("Metric", style="cyan")
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column(f"Metric 👉{title} ", style="cyan")
         table.add_column("Value", style="magenta")
         table.add_row("💰 Account balance", f"{balance} USDT")
         table.add_row("⏱️  Timeframe ", f"{timeframe}")
