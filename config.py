@@ -15,7 +15,7 @@ def load_config():
         'title_api_worker1': 'RSI',
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
-        'timeframe': 5,
+        'timeframe': 15,
         'timeframe_worker1': 15,  # 15 minutes
         'qty': 10,  # Amount of USDT for one order
         'max_positions': 10,  # Max 10 positions
