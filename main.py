@@ -5,6 +5,7 @@ from TradingBotBybit import TradingBotBybit
 from indicators.combined_macd_cdc_signal import combined_macd_cdc_signal
 from indicators.combined_rsi_cdc_signal import combined_rsi_cdc_signal
 from indicators.combined_rsi_macd_signal import combined_rsi_macd_ma_cdc_signal
+from indicators.rsi_basic_signal import rsi_basic_signal
 
     
 def main():
@@ -33,7 +34,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_macd_ma_cdc_signal,
+            'signal_func': rsi_basic_signal,
             'title': config['title_api_worker1']
         }
     ]
