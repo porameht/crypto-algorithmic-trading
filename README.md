@@ -81,8 +81,7 @@ def main():
             'timeframe': config['timeframe'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': jim_simons_signal,
-            'title': "📊 Account Information Main"
+            'signal_func': jim_simons_signal
         },
         {
             'api': config['api_worker1'],
@@ -93,8 +92,7 @@ def main():
             'timeframe': config['timeframe'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_macd_signal,
-            'title': "📊 Account Information Worker1"
+            'signal_func': combined_rsi_macd_signal
         }
     ]
 
