@@ -1,4 +1,3 @@
-import ta
 from indicators.cdc_action_zone import cdc_action_zone
 from indicators.rsi_basic_signal import rsi_basic_signal
     
