@@ -1,9 +1,8 @@
+from datetime import datetime, timedelta
 from pybit.unified_trading import HTTP
 import pandas as pd
 import ta
 from time import sleep
-import random
-import requests
 
 class Bybit:
     def __init__(self, api, secret, accounttype):
@@ -74,6 +73,24 @@ class Bybit:
             return symbols
         except Exception as err:
             print(err)
+            
+    def get_last_order_time(self, last_hours=1):
+        last_order_times = {}
+        try:
+            start_time = int((datetime.now() - timedelta(hours=last_hours)).timestamp() * 1000)
+            end_time = int(datetime.now().timestamp() * 1000)
+            order_history = self.session.get_closed_pnl(category="linear", limit=100, start_time=start_time, end_time=None)['result']['list']
+            for order in order_history:
+                symbol = order['symbol']
+                updated_time = int(order['updatedTime'])  # Convert string to integer
+                updated_datetime = datetime.fromtimestamp(updated_time / 1000)
+                if updated_datetime >= datetime.now() - timedelta(hours=last_hours):
+                    last_order_times[symbol] = updated_datetime
+                    
+            return last_order_times
+        except Exception as err:
+            print(f"Error fetching order history: {err}")
+        return last_order_times
 
     def klines(self, symbol, timeframe, limit=500):
         try:

@@ -7,8 +7,9 @@ def combined_rsi_cdc_signal(session, symbol, timeframe):
 
     # Combine RSI, MACD, MA, and CDC Action Zone logic
     signal, take_profit, stop_loss = rsi_basic_signal(session, symbol, timeframe)
-
+    
     Green, Blue, LBlue, Red, Orange, Yellow = cdc_action_zone(session, symbol, 60)
+    
     if signal == 'up' and Green.iloc[-1]:
         print(f"🥬 Green signal met for {symbol} at {entry_price}.")
         return 'up', take_profit, stop_loss

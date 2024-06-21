@@ -1,8 +1,12 @@
-import os
+from datetime import datetime, timedelta
+import logging
 from time import sleep
 from rich import print
 from AccountInfoDisplayer import AccountInfoDisplayer
 from Bybit import Bybit
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class TradingBotBybit:
     def __init__(self, session_config):
@@ -17,20 +21,30 @@ class TradingBotBybit:
         self.max_positions = session_config['max_positions']
         self.signal_func = session_config['signal_func']
         self.title = session_config['title']
+        
+        self.last_order_times = {}
 
     def execute_trades(self, positions):
         for elem in self.symbols:
             if len(positions) >= self.max_positions:
                 break
+
+            last_order_time = self.last_order_times.get(elem)
+            
+            if last_order_time:
+                continue
+            
             try:
                 signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
                 if signal == 'up' and elem not in positions:
                     self.session.place_order_market(elem, 'buy', self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                    positions.append(elem)  # Add the element to positions after placing the order
+                    positions.append(elem)
+                    self.last_order_times[elem] = datetime.now()
                     sleep(1)
                 elif signal == 'down' and elem not in positions:
                     self.session.place_order_market(elem, 'sell', self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                    positions.append(elem)  # Add the element to positions after placing the order
+                    positions.append(elem)
+                    self.last_order_times[elem] = datetime.now()
                     sleep(1)
             except Exception as err:
                 print(f"Error executing trade for {elem}: {err}")
@@ -38,11 +52,14 @@ class TradingBotBybit:
     def run(self):
         while True:
             balance = self.session.get_balance()
+            self.last_order_times = self.session.get_last_order_time(last_hours=1)
 
             if balance is None or self.symbols is None:
-                print('❌ Cannot connect')
+                print('❌ Cannot connect to Bybit')
                 sleep(120)
                 continue
+            
+            print(self.last_order_times)
 
             self.displayer.display_account_info(self.session, self.title, self.timeframe)
 

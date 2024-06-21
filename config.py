@@ -17,7 +17,7 @@ def load_config():
         'leverage': 10,  # 10x
         'timeframe': 5,
         'timeframe_worker1': 5,  # 15 minutes
-        'qty': 10,  # Amount of USDT for one order
+        'qty': 20,  # Amount of USDT for one order
         'max_positions': 10,  # Max 10 positions
         
         'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', None),
