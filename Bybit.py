@@ -49,6 +49,24 @@ class Bybit:
             return round(pnl, 4)
         except Exception as err:
             print(err)
+            
+    def get_net_profit(self, last_hours):
+        net_profit = 0.0  # Initialize net profit
+        try:
+            start_time = int((datetime.now() - timedelta(hours=last_hours)).timestamp() * 1000)
+            end_time = int(datetime.now().timestamp() * 1000)
+            order_history = self.session.get_closed_pnl(category="linear", limit=100, start_time=start_time, end_time=end_time)['result']['list']
+            for order in order_history:
+                closed_pnl = float(order['closedPnl'])
+                updated_time = int(order['updatedTime'])  # Convert string to integer
+                updated_datetime = datetime.fromtimestamp(updated_time / 1000)
+                if updated_datetime >= datetime.now() - timedelta(hours=last_hours):
+                    net_profit += closed_pnl  # Sum the closed PnL
+
+            return net_profit 
+        except Exception as err:
+            print(f"Error fetching order history: {err}")
+            return net_profit  # Return net profit even if there's an error
 
     def get_current_pnl(self):
         try:
