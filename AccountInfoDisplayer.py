@@ -16,10 +16,14 @@ class AccountInfoDisplayer:
             positions = session.get_positions(200)
             last_pnl = session.get_last_pnl(100)
             current_pnl = session.get_current_pnl()
+            net_profit_12hr = session.get_net_profit(last_hours=12)
+            
+            # win_rate = session.get_win_rate()
             table.add_row("📂 Opened positions", f"{len(positions)}")
             table.add_row("💰 Last 100 P&L", f"{last_pnl} USDT")
+            table.add_row("🏖️  Net profit 12Hr.", f"{round(net_profit_12hr, 3)} USDT")
             table.add_row("💹 Current P&L", f"{current_pnl} USDT")
-            
+            # table.add_row("🏆 Win Rate", f"{win_rate:.2f}%")
             self.console.print(table)
             
             if positions:
