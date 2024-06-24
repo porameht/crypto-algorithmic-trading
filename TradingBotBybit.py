@@ -51,8 +51,8 @@ class TradingBotBybit:
                 continue
             
             
-            if net_profit > (balance * 0.1):
-                print(f'🚨 Total PnL in {12}Hr. is more than 10% {net_profit} of wallet balance. {balance} Stopping bot...')
+            if net_profit > 1:
+                print(f'🚨 Total PnL in {12}Hr. is more than 1$ of wallet balance. {balance} Stopping bot...')
                 break
             
             self.displayer.display_account_info(self.session, self.signal_func.__name__, self.timeframe)
