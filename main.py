@@ -3,6 +3,7 @@ from TelegramBot import TelegramBot
 from config import load_config
 from TradingBotBybit import TradingBotBybit
 from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
+from indicators.comb_rsi_cdc_signal_2 import comb_rsi_cdc_signal_2
 from indicators.comb_rsi_macd_signal import comb_rsi_macd_signal
 
     
@@ -31,7 +32,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': comb_rsi_macd_signal
+            'signal_func': comb_rsi_cdc_signal_2
         }
     ]
 
