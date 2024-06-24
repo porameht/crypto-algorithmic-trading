@@ -7,7 +7,7 @@ def comb_rsi_cdc_signal_2(session, symbol, timeframe):
     entry_price = kl.Close.iloc[-1]
 
     # Combine RSI, MACD, MA, and CDC Action Zone logic
-    signal, take_profit, stop_loss = rsi_basic_signal(session, symbol, timeframe, 20, 20)
+    signal, take_profit, stop_loss = rsi_basic_signal(session, symbol, timeframe, 14, 14)
     
     Green, Blue, LBlue, Red, Orange, Yellow = cdc_action_zone(session, symbol)
     
