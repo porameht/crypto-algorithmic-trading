@@ -1,7 +1,7 @@
 import ta
 
 def cdc_action_zone(session, symbol):
-    kl = session.klines(symbol, 30)
+    kl = session.klines(symbol, 60)
     xsrc = kl.Close
     xprd1 = 12
     xprd2 = 26
