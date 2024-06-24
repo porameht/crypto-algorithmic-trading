@@ -23,17 +23,17 @@ def main():
             'max_positions': config['max_positions'],
             'signal_func': comb_rsi_cdc_signal
         },
-        {
-            'api': config['api_worker1'],
-            'secret': config['secret_worker1'],
-            'accountType': config['accountType_worker1'],
-            'mode': config['mode'],
-            'leverage': config['leverage'],
-            'timeframe': config['timeframe_worker1'],
-            'qty': config['qty'],
-            'max_positions': config['max_positions'],
-            'signal_func': comb_rsi_cdc_signal_2
-        }
+        # {
+        #     'api': config['api_worker1'],
+        #     'secret': config['secret_worker1'],
+        #     'accountType': config['accountType_worker1'],
+        #     'mode': config['mode'],
+        #     'leverage': config['leverage'],
+        #     'timeframe': config['timeframe_worker1'],
+        #     'qty': config['qty'],
+        #     'max_positions': config['max_positions'],
+        #     'signal_func': comb_rsi_cdc_signal_2
+        # }
     ]
 
     bots = [TradingBotBybit(session_config) for session_config in session_configs]
