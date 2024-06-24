@@ -200,70 +200,66 @@ class Bybit:
             else:
                 print(err)
 
-    def place_order_market(self, symbol, side, mode, leverage, qty=10, tp=0.012, sl=0.009):
-        # Set trading mode and leverage
-        self.set_mode(symbol, mode, leverage)
-        sleep(0.5)
-        self.set_leverage(symbol, leverage)
-        sleep(0.5)
+    # def place_order_market(self, symbol, side, mode, leverage, qty=10, tp=0.012, sl=0.009):
+    #     # Set trading mode and leverage
+    #     self.set_mode(symbol, mode, leverage)
+    #     sleep(0.5)
+    #     self.set_leverage(symbol, leverage)
+    #     sleep(0.5)
         
-        # Get price and quantity precisions
-        price_precision = self.get_precisions(symbol)[0]
-        qty_precision = self.get_precisions(symbol)[1]
+    #     # Get price and quantity precisions
+    #     price_precision = self.get_precisions(symbol)[0]
+    #     qty_precision = self.get_precisions(symbol)[1]
         
-        # Get the current mark price
-        mark_price = self.session.get_tickers(
-            category='linear',
-            symbol=symbol
-        )['result']['list'][0]['markPrice']
-        mark_price = float(mark_price)
-        # Calculate order quantity based on mark price
-        order_qty = round(qty / mark_price, qty_precision)
-        sleep(2)
+    #     # Get the current mark price
+    #     mark_price = self.session.get_tickers(
+    #         category='linear',
+    #         symbol=symbol
+    #     )['result']['list'][0]['markPrice']
+    #     mark_price = float(mark_price)
+    #     # Calculate order quantity based on mark price
+    #     order_qty = round(qty / mark_price, qty_precision)
+    #     sleep(2)
 
-        try:
-            if side.lower() == 'buy':
-                tp_price = round(tp, price_precision)
-                sl_price = round(sl, price_precision)
-                resp = self.session.place_order(
-                    category='linear',
-                    symbol=symbol,
-                    side='Buy',
-                    orderType='Market',
-                    qty=order_qty,
-                    takeProfit=tp_price,
-                    stopLoss=sl_price,
-                    # tpTriggerBy='Market',
-                    # slTriggerBy='Market'
-                )
-                print(f'Takeprofit: {tp_price}')
-                print(f'Stoploss: {sl_price}')
-                print(resp['retMsg'])
-                return resp['retMsg']
+    #     try:
+    #         if side.lower() == 'buy':
+    #             tp_price = round(tp, price_precision)
+    #             sl_price = round(sl, price_precision)
+    #             resp = self.session.place_order(
+    #                 category='linear',
+    #                 symbol=symbol,
+    #                 side='Buy',
+    #                 orderType='Market',
+    #                 qty=order_qty,
+    #                 takeProfit=tp_price,
+    #                 stopLoss=sl_price,
+    #             )
+    #             print(f'Takeprofit: {tp_price}')
+    #             print(f'Stoploss: {sl_price}')
+    #             print(resp['retMsg'])
+    #             return resp['retMsg']
 
-            elif side.lower() == 'sell':
-                tp_price = round(tp, price_precision)
-                sl_price = round(sl, price_precision)
-                resp = self.session.place_order(
-                    category='linear',
-                    symbol=symbol,
-                    side='Sell',
-                    orderType='Market',
-                    qty=order_qty,
-                    takeProfit=tp_price,
-                    stopLoss=sl_price,
-                    # tpTriggerBy='Market',
-                    # slTriggerBy='Market'
-                )
-                print(f'Takeprofit: {tp_price}')
-                print(f'Stoploss: {sl_price}')
-                print(resp['retMsg'])
-                return resp['retMsg']
-            else:
-                print("Invalid side specified. Use 'buy' or 'sell'.")
+    #         elif side.lower() == 'sell':
+    #             tp_price = round(tp, price_precision)
+    #             sl_price = round(sl, price_precision)
+    #             resp = self.session.place_order(
+    #                 category='linear',
+    #                 symbol=symbol,
+    #                 side='Sell',
+    #                 orderType='Market',
+    #                 qty=order_qty,
+    #                 takeProfit=tp_price,
+    #                 stopLoss=sl_price,
+    #             )
+    #             print(f'Takeprofit: {tp_price}')
+    #             print(f'Stoploss: {sl_price}')
+    #             print(resp['retMsg'])
+    #             return resp['retMsg']
+    #         else:
+    #             print("Invalid side specified. Use 'buy' or 'sell'.")
 
-        except Exception as err:
-            print(err)
+    #     except Exception as err:
+    #         print(err)
 
     def place_order_limit(self, symbol, side, mode, leverage, qty=10, tp=0.012, sl=0.009):
         self.set_mode(symbol, mode, leverage)
@@ -318,3 +314,91 @@ class Bybit:
                 print(resp['retMsg'])
             except Exception as err:
                 print(err)
+                
+    def get_win_rate(self):
+        try:
+            order_history = self.session.get_closed_pnl(category="linear", limit=100)['result']['list']
+            wins = sum(1 for order in order_history if float(order['closedPnl']) > 0)
+            total = len(order_history)
+            return round((wins / total) * 100, 3) if total > 0 else 0.0
+        except Exception as err:
+            print(f"Error calculating win rate: {err}")
+            return None
+            
+    
+    def place_order_market(self, symbol, side, mode, leverage, qty, tp, sl, trailing_stop_percent=1):
+        # Set trading mode and leverage
+        
+        self.set_mode(symbol, mode, leverage)
+        sleep(0.5)
+        self.set_leverage(symbol, leverage)
+        sleep(0.5)
+        
+        # Get price and quantity precisions
+        price_precision = self.get_precisions(symbol)[0]
+        qty_precision = self.get_precisions(symbol)[1]
+        
+        # Get the current mark price
+        mark_price = self.session.get_tickers(
+            category='linear',
+            symbol=symbol
+        )['result']['list'][0]['markPrice']
+        mark_price = float(mark_price)
+        
+        # Calculate order quantity based on mark price
+        order_qty = round(qty / mark_price, qty_precision)
+        
+        sleep(2)
+
+        try:
+            # Place the market order
+            order_resp = self.session.place_order(
+                category='linear',
+                symbol=symbol,
+                side=side.capitalize(),
+                orderType='Market',
+                qty=str(order_qty),
+                takeProfit=str(tp),
+                stopLoss=str(sl),
+            )
+            print(f'Order placed: {order_resp["retMsg"]}')
+            
+            if order_resp['retMsg'] == 'OK':
+                # Set TP, SL, and trailing stop
+                stop_resp = self.set_trading_stop(side, symbol, mark_price, tp, sl, trailing_stop_percent)
+                print(f'Trading stop set: {stop_resp}')
+            
+            print(f'Side: {side.capitalize()}')
+            print(f'Quantity: {order_qty}')
+            print(f'Mark Price: {mark_price}')
+            
+            return order_resp['retMsg']
+        except Exception as err:
+            print(f"Error placing order: {err}")
+            return None
+
+    def set_trading_stop(self, side, symbol, mark_price, tp, sl, trailing_stop_percent):
+        price_precision = self.get_precisions(symbol)[0]
+        
+        trailing_stop = round(mark_price * trailing_stop_percent/100, price_precision)
+        
+        try:
+            resp = self.session.set_trading_stop(
+                category='linear',
+                symbol=symbol,
+                takeProfit=str(tp),
+                stopLoss=str(sl),
+                trailingStop=str(trailing_stop),
+                tpTriggerBy='MarkPrice',
+                slTriggerBy='MarkPrice',
+                tpslMode='Full',
+                tpSize='',
+                slSize=''
+            )
+            print(f'Take Profit: {tp}')
+            print(f'Stop Loss: {sl}')
+            print(f'Trailing Stop: {trailing_stop}')
+            return resp['retMsg']
+        except Exception as err:
+            print(f"Error setting trading stop: {err}")
+            return None
