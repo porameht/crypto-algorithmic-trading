@@ -11,11 +11,9 @@ def comb_rsi_cdc_signal_2(session, symbol, timeframe):
     
     Green, Blue, LBlue, Red, Orange, Yellow = cdc_action_zone(session, symbol)
     
-    if signal == 'up' and Green.iloc[-1]:
-        print(f"🥬 Green signal met for {symbol} at {entry_price}.")
+    if signal == 'up':
         return 'up', take_profit, stop_loss
-    elif signal == 'down' and Red.iloc[-1]:
-        print(f"🍄 Red signal met for {symbol} at {entry_price}.")
+    elif signal == 'down':
         return 'down', take_profit, stop_loss
     else:
         return 'none', None, None

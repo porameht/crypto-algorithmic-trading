@@ -13,7 +13,7 @@ def load_config():
         'api_worker1': os.getenv('API_BYBIT_WORKER1', None),
         'secret_worker1': os.getenv('SECRET_BYBIT_WORKER1', None),
         'accountType_worker1': os.getenv('ACCOUNT_TYPE_WORKER1', None),
-        'timeframe_worker1': 15,  # 15 minutes
+        'timeframe_worker1': 5,  # 15 minutes
 
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
