@@ -101,8 +101,8 @@ class Bybit:
             for order in order_history:
                 
                 closed_pnl = float(order['closedPnl'])
-                if closed_pnl < 0:
-                    continue
+                # if closed_pnl < 0:
+                #     continue
                 
                 symbol = order['symbol']
                 updated_time = int(order['updatedTime'])  # Convert string to integer
