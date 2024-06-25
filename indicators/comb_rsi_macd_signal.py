@@ -9,7 +9,8 @@ def comb_rsi_macd_signal(session, symbol, timeframe):
     # Adjusted RSI window to 14
     rsi = ta.momentum.RSIIndicator(kl.Close, window=14).rsi()
     macd = ta.trend.MACD(kl.Close).macd_diff()
-    atr = ta.volatility.AverageTrueRange(kl.High, kl.Low, kl.Close, window=20).average_true_range()
+    
+    atr = ta.volatility.AverageTrueRange(kl.High, kl.Low, kl.Close, window=14).average_true_range()
 
     stop_loss_distance = round(atr.iloc[-1], session.get_precisions(symbol)[0])
 

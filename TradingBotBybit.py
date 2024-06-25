@@ -43,14 +43,19 @@ class TradingBotBybit:
         while True:
             balance = self.session.get_balance()
             self.last_order_times = self.session.get_last_order_time(last_hours=1)
+            net_profit = self.session.get_net_profit(last_hours=1)
 
             if balance is None or self.symbols is None:
                 print('❌ Cannot connect to Bybit')
                 sleep(120)
                 continue
             
-            print(self.last_order_times)
-
+            
+            if net_profit > 0.1:
+                print(f'🎉 Net profit in the last hour: {net_profit} USDT')
+                sleep(30)
+                continue
+            
             self.displayer.display_account_info(self.session, self.signal_func.__name__, self.timeframe)
 
             try:
