@@ -17,7 +17,7 @@ def load_config():
 
         'mode': 1,  # 1 - Isolated, 0 - Cross
         'leverage': 10,  # 10x
-        'qty': 4,  # Amount of USDT for one order
+        'qty': 6,  # Amount of USDT for one order
         'max_positions': 2,  # Max 10 positions
         
         'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', None),
