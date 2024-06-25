@@ -21,10 +21,10 @@ class TradingBotBybit:
             if len(positions) >= self.max_positions:
                 break
 
-            # last_order_time = self.last_order_times.get(elem)
+            last_order_time = self.last_order_times.get(elem)
             
-            # if last_order_time:
-            #     continue
+            if last_order_time:
+                continue
             
             try:
                 signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
@@ -53,7 +53,8 @@ class TradingBotBybit:
             
             if net_profit > 0.1:
                 print(f'🎉 Net profit in the last hour: {net_profit} USDT')
-                break
+                sleep(30)
+                continue
             
             self.displayer.display_account_info(self.session, self.signal_func.__name__, self.timeframe)
 
