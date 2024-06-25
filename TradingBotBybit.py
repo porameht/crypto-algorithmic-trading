@@ -50,8 +50,9 @@ class TradingBotBybit:
                 sleep(120)
                 continue
             
-            
-            if net_profit > 0.1:
+            print(f'📊 Balance: {balance} USDT')
+            print(f'📈 Net profit in the last 3 hours: {net_profit} USDT')
+            if net_profit > 0.05:
                 print(f'🎉 Net profit in the last hour: {net_profit} USDT')
                 sleep(30)
                 continue
