@@ -32,7 +32,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': comb_rsi_cdc_signal_2
+            'signal_func': comb_rsi_macd_signal
         }
     ]
 
