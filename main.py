@@ -21,7 +21,7 @@ def main():
             'timeframe': config['timeframe'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': comb_rsi_cdc_signal
+            'signal_func': comb_rsi_cdc_signal_2
         },
         {
             'api': config['api_worker1'],
@@ -32,7 +32,7 @@ def main():
             'timeframe': config['timeframe_worker1'],
             'qty': config['qty'],
             'max_positions': config['max_positions'],
-            'signal_func': comb_rsi_macd_signal
+            'signal_func': comb_rsi_cdc_signal_2
         }
     ]
 
