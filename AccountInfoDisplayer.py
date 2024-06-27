@@ -21,7 +21,7 @@ class AccountInfoDisplayer:
             # win_rate = session.get_win_rate()
             table.add_row("📂 Opened positions", f"{len(positions)}")
             table.add_row("💰 Last 100 P&L", f"{last_pnl} USDT")
-            table.add_row("🏖️  Net profit 3Hr.", f"{round(net_profit, 3)} USDT")
+            table.add_row("🏖️  Net profit 12Hr.", f"{round(net_profit, 3)} USDT")
             table.add_row("💹 Current P&L", f"{current_pnl} USDT")
             # table.add_row("🏆 Win Rate", f"{win_rate:.2f}%")
             self.console.print(table)
