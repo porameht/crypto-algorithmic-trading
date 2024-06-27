@@ -16,7 +16,7 @@ class AccountInfoDisplayer:
             positions = session.get_positions(200)
             last_pnl = session.get_last_pnl(100)
             current_pnl = session.get_current_pnl()
-            net_profit = session.get_net_profit(last_hours=3)
+            net_profit = session.get_net_profit(last_hours=12)
             
             # win_rate = session.get_win_rate()
             table.add_row("📂 Opened positions", f"{len(positions)}")
