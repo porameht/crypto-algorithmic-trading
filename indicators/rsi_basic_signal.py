@@ -1,5 +1,5 @@
 import ta
-from indicators.calculate_tp_sl import calculate_tp_sl_by_percent
+from indicators.calculate_tp_sl import calculate_tp_sl, calculate_tp_sl_by_percent
 
 def rsi_basic_signal(session, symbol, timeframe, window_rsi, window_atr):
     kl = session.klines(symbol, timeframe)
@@ -12,10 +12,14 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi, window_atr):
     # stop_loss_percent = stop_loss_distance / entry_price
 
     if rsi.iloc[-2] < 30 and rsi.iloc[-1] > 30:
-        take_profit, stop_loss = calculate_tp_sl_by_percent(entry_price)
+        # take_profit, stop_loss = calculate_tp_sl_by_percent(entry_price)
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
+
         return 'up', take_profit, stop_loss
     if rsi.iloc[-2] > 70 and rsi.iloc[-1] < 70:
-        take_profit, stop_loss = calculate_tp_sl_by_percent(entry_price, is_sell=True)
+        # take_profit, stop_loss = calculate_tp_sl_by_percent(entry_price, is_sell=True)
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
+
         return 'down', take_profit, stop_loss
     else:
         return 'none', None, None
