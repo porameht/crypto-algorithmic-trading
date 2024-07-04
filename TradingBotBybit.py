@@ -54,10 +54,10 @@ class TradingBotBybit:
 
     def run(self):
         while True:
-            if not self.is_trading_time():
-                print("Outside trading hours. Waiting...")
-                sleep(300)  # Sleep for 5 minutes before checking again
-                continue
+            # if not self.is_trading_time():
+            #     print("Outside trading hours. Waiting...")
+            #     sleep(300)  # Sleep for 5 minutes before checking again
+            #     continue
 
             balance = self.session.get_balance()
             self.last_order_times = self.session.get_last_order_time(last_hours=1)
@@ -68,7 +68,7 @@ class TradingBotBybit:
                 sleep(120)
                 continue
             
-            if net_profit > 0.3:
+            if net_profit > 0.5:
                 print(f'🎉 Net profit in the last 12 hours: {net_profit} USDT')
                 sleep(30)
                 continue
