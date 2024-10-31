@@ -1,19 +1,33 @@
-import telebot
+import requests
+from common.enums import OrderSide
 
 class TelegramBot:
     def __init__(self, config):
         self.config = config
-        self.user_id = config['telegram_user_id']
         self.group_id = config['telegram_group_id']
         self.bot_token = config['telegram_bot_token']
-        self.bot = telebot.TeleBot(self.bot_token, parse_mode=None) # You can set parse_mode by default. HTML or MARKDOWN
-
-    def send_message(self, message):
-        self.bot.send_message(chat_id=self.user_id, text=message)
         
-    def send_message_group(self, message):
-        self.bot.send_message(chat_id=self.group_id, text=message)
-    
-# https://api.telegram.org/bot7300328807:AAGhdyXF3hCNG0fUsyLTmBmPhFmZB3igqf4/getMe
-# https://api.telegram.org/bot7300328807:AAECRGfasgaIcK0BRiX2wEKcY1xBam2JyWQ/getUpdates
-# Hello User(first_name='แถม', id=6504116081, is_bot=False, language_code='en')
+    def send_message(self, message: str):
+        try:
+            url = f"https://api.telegram.org/bot{self.bot_token}/sendMessage"
+            data = {
+                "chat_id": self.group_id,
+                "text": message,
+                "parse_mode": "HTML"
+            }
+            requests.post(url, data=data)
+        except Exception as e:
+            print(f"Error sending telegram message: {e}")
+            
+    def send_trade_message(self, symbol: str, side: OrderSide, entry: float, tp: float, sl: float):
+        emoji = "🟢" if side == OrderSide.BUY.value else "🔴"
+        message = f"""{emoji} New {side.value} Position
+                    Symbol: {symbol}
+                    Entry: {entry}
+                    TP: {tp}
+                    SL: {sl}
+                    """
+        self.send_message(message)
+
+# https://api.telegram.org/bot{self.bot_token}/getMe
+# https://api.telegram.org/bot{self.bot_token}/getUpdates

@@ -1,14 +1,14 @@
 from time import sleep
 from rich import print
-from AccountInfoDisplayer import AccountInfoDisplayer
 from Bybit import Bybit
 from datetime import datetime, time
 import pytz
+from common.enums import OrderSide, OrderType, MarginMode, TimeFrame, Signal
+from TelegramBot import TelegramBot
 
 class TradingBotBybit:
     def __init__(self, session_config):
         self.session = Bybit(session_config['api'], session_config['secret'], session_config['accountType'])
-        self.displayer = AccountInfoDisplayer()
         self.symbols = self.session.get_tickers()
         self.mode = session_config['mode']
         self.leverage = session_config['leverage']
@@ -18,6 +18,8 @@ class TradingBotBybit:
         self.signal_func = session_config['signal_func']
         self.last_order_times = {}
         self.thai_tz = pytz.timezone('Asia/Bangkok')
+        self.telegram = TelegramBot(session_config)
+        self.current_time = datetime.now(self.thai_tz).time()
 
     def is_trading_time(self):
         current_time = datetime.now(self.thai_tz).time()
@@ -41,13 +43,15 @@ class TradingBotBybit:
             
             try:
                 signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
-                if signal == 'up' and elem not in positions:
-                    self.session.place_order_market(elem, 'buy', self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                if signal == Signal.UP.value and elem not in positions:
+                    self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
                     positions.append(elem)
+                    self.telegram.send_trade_message(elem, OrderSide.BUY.value, self.session.get_last_price(elem), take_profit, stop_loss)
                     sleep(1)
-                elif signal == 'down' and elem not in positions:
-                    self.session.place_order_market(elem, 'sell', self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                elif signal == Signal.DOWN.value and elem not in positions:
+                    self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
                     positions.append(elem)
+                    self.telegram.send_trade_message(elem, OrderSide.SELL.value, self.session.get_last_price(elem), take_profit, stop_loss)
                     sleep(1)
             except Exception as err:
                 print(f"Error executing trade for {elem}: {err}")
@@ -69,11 +73,14 @@ class TradingBotBybit:
                 continue
             
             if net_profit > 0.5:
-                print(f'🎉 Net profit in the last 12 hours: {net_profit} USDT')
+                message = f'🎉 Net profit in the last 12 hours: {net_profit} USDT'
+                print(message)
+                # Only send Telegram message at midnight and noon
+                if self.current_time.hour in [0, 12] and self.current_time.minute == 0:
+                    self.telegram.send_message(message)
+                    # Sleep for 1 minute to avoid multiple messages
                 sleep(30)
                 continue
-            
-            self.displayer.display_account_info(self.session, self.signal_func.__name__, self.timeframe)
 
             try:
                 positions = self.session.get_positions(200)
