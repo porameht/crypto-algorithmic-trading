@@ -7,7 +7,7 @@ from rich.theme import Theme
 from datetime import datetime
 
 class AccountInfoDisplayer:
-    def __init__(self, session, title, timeframe, telegram=None, enable_logging=False):
+    def __init__(self, session, title, timeframe, telegram=None, func_name=None, enable_logging=False):
         # Custom theme for rich console
         custom_theme = Theme({
             'info': Style(color='cyan', bold=True),
@@ -27,6 +27,7 @@ class AccountInfoDisplayer:
         self.title = title 
         self.timeframe = timeframe
         self.telegram = telegram
+        self.func_name = func_name
         self.enable_logging = enable_logging
 
     def display_account_info(self):        
@@ -91,7 +92,8 @@ class AccountInfoDisplayer:
     def format_telegram_message(self, title, balance, timeframe, positions, 
                               last_pnl, current_pnl, net_profit):
         message = (
-            f"<b>✨ Account Status ({title}) ✨</b>\n\n"
+            f"<b>✨ Account Status ({title}) ✨</b>\n"
+            f"<b>🧠 Algorithm:</b> <code>{self.func_name}</code>\n\n"
             f"<b>💰 Balance:</b> <code>{balance} USDT</code>\n"
             f"<b>⏱️ Timeframe:</b> <code>{timeframe}</code>\n"
             f"<b>📂 Open Positions:</b> <code>{len(positions)}</code>\n"
