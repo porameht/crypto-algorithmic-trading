@@ -16,13 +16,14 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def display_and_notify_account_info(index, bot, telegram):
+def display_and_notify_account_info(index, bot, telegram, session_config):
     try:
         account_displayer = AccountInfoDisplayer(
             session=bot.session,
             title=f"No.{index+1}",
             timeframe=bot.timeframe,
             telegram=telegram,
+            func_name=session_config.get('signal_func').__name__,
             enable_logging=False
         )
         account_displayer.display_account_info()
@@ -87,7 +88,7 @@ def main():
         try:
             bot = TradingBotBybit(session_config)
             bots.append(bot)
-            display_and_notify_account_info(index, bot, telegram)
+            display_and_notify_account_info(index, bot, telegram, session_config)
             last_notification_times[bot] = datetime.now()
             logger.info(f"Successfully initialized bot with timeframe {bot.timeframe}")
         except Exception as e:
