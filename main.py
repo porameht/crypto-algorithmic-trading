@@ -3,7 +3,7 @@ from TelegramBot import TelegramBot
 from config import load_config
 from TradingBotBybit import TradingBotBybit
 from AccountInfoDisplayer import AccountInfoDisplayer
-from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
+from indicators.comb_rsi_macd_signal import comb_rsi_macd_signal
 from datetime import datetime, timedelta
 import logging
 import sys
@@ -51,7 +51,7 @@ def main():
             'timeframe': config.get('timeframe'),
             'qty': config.get('qty'),
             'max_positions': config.get('max_positions'),
-            'signal_func': comb_rsi_cdc_signal,
+            'signal_func': comb_rsi_macd_signal,
             'telegram_bot_token': config.get('telegram_bot_token'),
             'telegram_group_id': config.get('telegram_group_id')
         },
