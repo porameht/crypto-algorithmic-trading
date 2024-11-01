@@ -21,7 +21,7 @@ class TelegramBot:
             
     def send_trade_message(self, symbol, side, entry, tp, sl, algorithm):
         emoji = "🟢" if side == OrderSide.BUY.value else "🔴"
-        message = f"""{emoji} New {side.value} Position
+        message = f"""{emoji} New {side} Position
                     Algorithm: {algorithm}
                     Symbol: {symbol}
                     Entry: {entry}
