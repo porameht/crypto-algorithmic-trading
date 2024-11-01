@@ -21,7 +21,7 @@ class TradingBotBybit:
         """
         self._init_session(session_config)
         self._init_trading_params(session_config)
-        self._init_time_and_telegram(session_config)
+        self._init_telegram(session_config)
         self._signal_func_names = ", ".join(f.__name__ for f in self.signal_funcs)
 
     def _init_session(self, session_config: dict) -> None:
@@ -44,11 +44,9 @@ class TradingBotBybit:
         self.signal_funcs = session_config['signal_funcs']
         self.last_order_times = {}
 
-    def _init_time_and_telegram(self, session_config: dict) -> None:
+    def _init_telegram(self, session_config: dict) -> None:
         """Initialize timezone and telegram settings."""
-        self.thai_tz = pytz.timezone('Asia/Bangkok')
         self.telegram = TelegramBot(session_config)
-        self.current_time = datetime.now(self.thai_tz).time()
 
     @lru_cache(maxsize=1)
     def is_trading_time(self) -> bool:
@@ -173,24 +171,26 @@ class TradingBotBybit:
         message = f'🎉 Net profit in the last 12 hours: {net_profit} USDT'
         print(message)
         
-        if self.current_time.hour in [0, 12] and self.current_time.minute == 0:
+        current_time = datetime.now(pytz.timezone('Asia/Bangkok')).time()
+        if current_time.hour in [0, 12] and current_time.minute == 0:
             self.telegram.send_message(message)
             sleep(30)
         return True
 
     def _check_account_info_interval(self) -> None:
-        """Check and display account info at configured intervals."""
+        """Check and display account info every 1 minute."""
         if 'interval' not in self.session_config:
             return
-            
+        
         interval = int(self.session_config['interval'])
+        current_time = datetime.now(pytz.timezone('Asia/Bangkok')).time()
         print(f'interval: {interval}')
         print(f'current_time: {self.current_time}')
         print(f'self.current_time.hour % interval: {self.current_time.hour % interval}')
         print(f'self.current_time.minute <= 3: {self.current_time.minute <= 3}')
-        if self.current_time.hour % interval == 0 and self.current_time.minute <= 3:
+        if current_time.hour % interval == 0 and current_time.minute <= 3:
             self.display_and_notify_account_info()
-            sleep(180)  # Sleep for 3 minutes to avoid multiple triggers
+            sleep(30)
 
     def run(self) -> None:
         """Main bot execution loop."""
