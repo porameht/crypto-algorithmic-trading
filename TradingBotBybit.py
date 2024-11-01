@@ -185,9 +185,9 @@ class TradingBotBybit:
         interval = int(self.session_config['interval'])
         current_time = datetime.now(pytz.timezone('Asia/Bangkok')).time()
         print(f'interval: {interval}')
-        print(f'current_time: {self.current_time}')
-        print(f'self.current_time.hour % interval: {self.current_time.hour % interval}')
-        print(f'self.current_time.minute <= 3: {self.current_time.minute <= 3}')
+        print(f'current_time: {current_time}')
+        print(f'self.current_time.hour % interval: {current_time.hour % interval}')
+        print(f'self.current_time.minute <= 3: {current_time.minute <= 3}')
         if current_time.hour % interval == 0 and current_time.minute <= 3:
             self.display_and_notify_account_info()
             sleep(30)

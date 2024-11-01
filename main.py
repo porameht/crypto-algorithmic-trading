@@ -5,11 +5,8 @@ from TradingBotBybit import TradingBotBybit
 from indicators.comb_rsi_macd_signal import comb_rsi_macd_signal
 from indicators.rsi_basic_signal import rsi_basic_signal
 from indicators.jim_simons import jim_simons_signal
-from indicators.macd_signal import macd_signal
 from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
-from datetime import datetime, timedelta
 import logging
-import pytz
 
 # Configure logging
 logging.basicConfig(
