@@ -137,8 +137,8 @@ class AccountInfoDisplayer:
                     f"<b>💵 Entry:</b> <code>{elem['avgPrice']}</code>\n"
                     f"<b>📊 Side:</b> <code>{elem['side']}</code>\n"
                     f"<b>📏 Size:</b> <code>{elem['size']}</code>\n"
-                    f"<b>🎯 Take Profit:</b> <code>{elem['takeProfit']} ({tp_pct})</code>\n"
-                    f"<b>🛑 Stop Loss:</b> <code>{elem['stopLoss']} ({sl_pct})</code>\n"
+                    f"<b>🎯 TP:</b> <code>{elem['takeProfit']} ({tp_pct})</code>\n"
+                    f"<b>🛑 SL:</b> <code>{elem['stopLoss']} ({sl_pct})</code>\n"
                     f"<s>━━━━━━━━━━━━━━━</s>"
                 )
             telegram.send_message(positions_msg)

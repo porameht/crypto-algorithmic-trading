@@ -19,9 +19,9 @@ class TelegramBot:
         except Exception as e:
             print(f"Error sending telegram message: {e}")
             
-    def send_trade_message(self, symbol: str, side: OrderSide, entry: float, tp: float, sl: float, algorithm: str):
+    def send_trade_message(self, symbol, side, entry, tp, sl, algorithm):
         emoji = "🟢" if side == OrderSide.BUY.value else "🔴"
-        message = f"""{emoji} New {side.value} Position
+        message = f"""{emoji} New {side} Position
                     Algorithm: {algorithm}
                     Symbol: {symbol}
                     Entry: {entry}
