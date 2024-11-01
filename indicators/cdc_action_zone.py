@@ -1,42 +1,39 @@
 import ta
 import numpy as np
+import pandas as pd
 
 def cdc_action_zone(session, symbol):
     # Get klines data with optimized timeframe
     kl = session.klines(symbol, 60)
-    xsrc = kl.Close
-    
-    # Optimized EMA periods based on testing
+    close = kl.Close.values  # Convert to numpy array for faster calculations
+    volume = kl.Volume.values
+
+    # Optimized EMA periods
     xprd1 = 10  # Faster EMA period
-    xprd2 = 21  # Slower EMA period
+    xprd2 = 21  # Slower EMA period 
     xsmooth = 1
 
-    # Calculate EMAs using numpy for better performance
-    alpha_smooth = 2/(xsmooth+1)
-    alpha_fast = 2/(xprd1+1) 
-    alpha_slow = 2/(xprd2+1)
+    # Calculate EMAs using numpy's exponential weighted moving average
+    xPrice = pd.Series(close).ewm(span=xsmooth, adjust=False).mean().values
+    FastMA = pd.Series(xPrice).ewm(span=xprd1, adjust=False).mean().values
+    SlowMA = pd.Series(xPrice).ewm(span=xprd2, adjust=False).mean().values
 
-    # Calculate EMAs using ta library
-    xPrice = ta.trend.EMAIndicator(xsrc, window=xsmooth).ema_indicator()
-    FastMA = ta.trend.EMAIndicator(xPrice, window=xprd1).ema_indicator()
-    SlowMA = ta.trend.EMAIndicator(xPrice, window=xprd2).ema_indicator()
-
-    # Calculate trend conditions
+    # Calculate trend conditions using numpy operations
     Bull = FastMA > SlowMA
     Bear = FastMA < SlowMA
 
-    # Add volume confirmation
-    vol_ma = kl.Volume.rolling(window=20).mean()
-    high_vol = kl.Volume > vol_ma * 1.2
+    # Volume confirmation using numpy
+    vol_ma = pd.Series(volume).rolling(window=20).mean().values
+    high_vol = volume > (vol_ma * 1.2)
 
-    # Enhanced signal conditions with volume
-    Green = Bull & (xPrice > FastMA) & high_vol
-    Blue = Bear & (xPrice > FastMA) & (xPrice > SlowMA) & high_vol
-    LBlue = Bear & (xPrice > FastMA) & (xPrice < SlowMA) & high_vol
+    # Vectorized signal calculations
+    Green = np.logical_and(Bull, np.logical_and(xPrice > FastMA, high_vol))
+    Blue = np.logical_and.reduce([Bear, xPrice > FastMA, xPrice > SlowMA, high_vol])
+    LBlue = np.logical_and.reduce([Bear, xPrice > FastMA, xPrice < SlowMA, high_vol])
 
-    Red = Bear & (xPrice < FastMA) & high_vol
-    Orange = Bull & (xPrice < FastMA) & (xPrice < SlowMA) & high_vol
-    Yellow = Bull & (xPrice < FastMA) & (xPrice > SlowMA) & high_vol
+    Red = np.logical_and(Bear, np.logical_and(xPrice < FastMA, high_vol))
+    Orange = np.logical_and.reduce([Bull, xPrice < FastMA, xPrice < SlowMA, high_vol])
+    Yellow = np.logical_and.reduce([Bull, xPrice < FastMA, xPrice > SlowMA, high_vol])
 
     return Green, Blue, LBlue, Red, Orange, Yellow
 

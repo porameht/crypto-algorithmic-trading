@@ -1,5 +1,5 @@
 import ta
-
+from common.enums import Signal
 from indicators.calculate_tp_sl import calculate_tp_sl
 
 def macd_signal(session, symbol, timeframe):
@@ -20,12 +20,12 @@ def macd_signal(session, symbol, timeframe):
 
         if macd_line.iloc[-1] > 0 and macd_signal_line.iloc[-1] < 0:
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
-            return 'up', take_profit, stop_loss
+            return Signal.UP.value, take_profit, stop_loss
         elif macd_line.iloc[-1] < 0 and macd_signal_line.iloc[-1] > 0:
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
-            return 'down', take_profit, stop_loss
+            return Signal.DOWN.value, take_profit, stop_loss
         else:
-            return 'none', None, None
+            return Signal.NONE.value, None, None
     except Exception as e:
         print(f"Error processing {symbol}: {e}")
-        return 'error', None, None
+        return Signal.NONE.value, None, None

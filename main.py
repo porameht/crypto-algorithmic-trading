@@ -4,10 +4,13 @@ from config import load_config
 from TradingBotBybit import TradingBotBybit
 from AccountInfoDisplayer import AccountInfoDisplayer
 from indicators.comb_rsi_macd_signal import comb_rsi_macd_signal
+from indicators.rsi_basic_signal import rsi_basic_signal
+from indicators.jim_simons import jim_simons_signal
+from indicators.macd_signal import macd_signal
+from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
 from datetime import datetime, timedelta
 import logging
-import sys
-
+import pytz
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -23,7 +26,7 @@ def display_and_notify_account_info(index, bot, telegram, session_config):
             title=f"No.{index+1}",
             timeframe=bot.timeframe,
             telegram=telegram,
-            func_name=session_config.get('signal_func').__name__,
+            func_name=", ".join(f.__name__ for f in session_config['signal_funcs']),
             enable_logging=False
         )
         account_displayer.display_account_info()
@@ -42,6 +45,15 @@ def main():
     telegram = TelegramBot(config)
     telegram.send_message("🤖 Bot is running...")
     
+    # Define all available signal functions
+    signal_functions = {
+        'comb_rsi_macd': comb_rsi_macd_signal,
+        'rsi_basic': rsi_basic_signal,
+        'macd': macd_signal,
+        'jim_simons': jim_simons_signal,
+        'comb_rsi_cdc': comb_rsi_cdc_signal,
+    }
+
     session_configs = [
         {
             'api': config.get('api_main'),
@@ -52,28 +64,21 @@ def main():
             'timeframe': config.get('timeframe'),
             'qty': config.get('qty'),
             'max_positions': config.get('max_positions'),
-            'signal_func': comb_rsi_macd_signal,
+            'signal_funcs': [
+                signal_functions['jim_simons'],  # Start with simpler signals
+                signal_functions['rsi_basic'],
+                signal_functions['macd'],
+                signal_functions['comb_rsi_cdc'],
+                signal_functions['comb_rsi_macd'],
+            ],
+            'interval': config.get('account_info_telegram_time'),
             'telegram_bot_token': config.get('telegram_bot_token'),
             'telegram_group_id': config.get('telegram_group_id')
-        },
-        # {
-        #     'api': config.get('api_worker1'),
-        #     'secret': config.get('secret_worker1'),
-        #     'accountType': config.get('accountType_worker1'), 
-        #     'mode': config.get('mode'),
-        #     'leverage': config.get('leverage'),
-        #     'timeframe': config.get('timeframe_worker1'),
-        #     'qty': config.get('qty'),
-        #     'max_positions': config.get('max_positions'),
-        #     'signal_func': comb_rsi_cdc_signal_2,
-        #     'telegram_bot_token': config.get('telegram_bot_token'),
-        #     'telegram_group_id': config.get('telegram_group_id')
-        # }
+        }
     ]
 
     # Create bot instances
     bots = []
-    last_notification_times = {}
     
     for index, session_config in enumerate(session_configs):
         # Validate required config values
@@ -89,7 +94,6 @@ def main():
             bot = TradingBotBybit(session_config)
             bots.append(bot)
             display_and_notify_account_info(index, bot, telegram, session_config)
-            last_notification_times[bot] = datetime.now()
             logger.info(f"Successfully initialized bot with timeframe {bot.timeframe}")
         except Exception as e:
             logger.error(f"Failed to initialize bot: {e}", exc_info=True)
@@ -108,17 +112,16 @@ def main():
             def run_bot_with_notifications(bot=bot):
                 while True:
                     try:
-                        current_time = datetime.now()
-                        time_since_last = current_time - last_notification_times[bot]
+                        bangkok_tz = pytz.timezone('Asia/Bangkok')
+                        current_time = datetime.now(bangkok_tz)
+                        current_hour = current_time.hour
+                        current_minute = current_time.minute
                         
-                        account_info_time = float(config.get('account_info_telegram_time', 3))
-                            
-                        # Check if account_info_time hours have passed
-                        if time_since_last.total_seconds() >= account_info_time * 3600:
+                        # Check if it's one of the target hours (every 3 hours: 0, 3, 6, 9, 12, 15, 18, 21)
+                        if current_hour % int(session_config.get('interval')) == 0 and current_minute == 0:
                             logger.info(f"Sending periodic account info update for {bot.timeframe}")
-                            display_and_notify_account_info(bot, telegram)
-                            last_notification_times[bot] = current_time
-                            
+                            index = bots.index(bot)
+                            display_and_notify_account_info(index, bot, telegram, session_configs[index])
                         bot.run()
                     except Exception as err:
                         error_msg = f"❌ Error in bot execution: {str(err)}"

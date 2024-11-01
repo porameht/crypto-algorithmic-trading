@@ -15,7 +15,7 @@ class TradingBotBybit:
         self.timeframe = session_config['timeframe']
         self.qty = session_config['qty']
         self.max_positions = session_config['max_positions']
-        self.signal_func = session_config['signal_func']
+        self.signal_funcs = session_config['signal_funcs']
         self.last_order_times = {}
         self.thai_tz = pytz.timezone('Asia/Bangkok')
         self.telegram = TelegramBot(session_config)
@@ -30,7 +30,6 @@ class TradingBotBybit:
             return start_time <= current_time <= end_time
         else:  # Crosses midnight
             return current_time >= start_time or current_time <= end_time
-
     def execute_trades(self, positions):
         for elem in self.symbols:
             if len(positions) >= self.max_positions:
@@ -42,18 +41,30 @@ class TradingBotBybit:
                 continue
             
             try:
-                signal, take_profit, stop_loss = self.signal_func(self.session, elem, self.timeframe)
-                if signal == Signal.UP.value and elem not in positions:
-                    self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                    positions.append(elem)
-                    self.telegram.send_trade_message(elem, OrderSide.BUY.value, self.session.get_last_price(elem), take_profit, stop_loss)
-                    sleep(1)
-                elif signal == Signal.DOWN.value and elem not in positions:
-                    self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                    positions.append(elem)
-                    self.telegram.send_trade_message(elem, OrderSide.SELL.value, self.session.get_last_price(elem), take_profit, stop_loss)
-                    sleep(1)
+                # Get signals from all algorithms
+                signal_funcs = [
+                    (func, *func(self.session, elem, self.timeframe))
+                    for func in self.signal_funcs
+                ]
+                # Check signals from each algorithm
+                for func, signal, take_profit, stop_loss in signal_funcs:
+                    if signal == Signal.UP.value and elem not in positions:
+                        self.telegram.send_message(f"🟢 Signal UP for {elem} with {func.__name__}")
+                        self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                        positions.append(elem)
+                        self.telegram.send_trade_message(elem, OrderSide.BUY.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
+                        sleep(1)
+                        break
+                    elif signal == Signal.DOWN.value and elem not in positions:
+                        self.telegram.send_message(f"🔴 Signal DOWN for {elem} with {func.__name__}")
+                        self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                        positions.append(elem)
+                        self.telegram.send_trade_message(elem, OrderSide.SELL.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
+                        sleep(1)
+                        break
+
             except Exception as err:
+                self.telegram.send_message(f"❌ Error executing trade for {elem}: {err}")
                 print(f"Error executing trade for {elem}: {err}")
 
     def run(self):
@@ -86,8 +97,9 @@ class TradingBotBybit:
                 positions = self.session.get_positions(200)
                 self.execute_trades(positions)
             except Exception as err:
+                self.telegram.send_message(f"❌ Error in main loop: {err}")
                 print(f"Error in main loop: {err}")
                 sleep(60)
 
-            print(f'🔎 Process Scanning... {len(self.symbols)} Charts => 🧠 {self.signal_func.__name__} signal')
+            print(f'🔎 Process Scanning... {len(self.symbols)} Charts => 🧠 {", ".join(f.__name__ for f in self.signal_funcs)} signals')
             sleep(20)
