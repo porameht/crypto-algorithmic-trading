@@ -23,12 +23,12 @@ class TelegramBot:
         emoji = "🟢" if side == OrderSide.BUY.value else "🔴"
         message = (
             f"<b>🚀 New {side} Position 🚀</b>\n"
-            f"<b>🧠 Algo:</b> <code>{algorithm}</code>\n\n"
-            f"\n<b>{emoji} {symbol}</b>\n"
-            f"<b>💵 Entry:</b> <code>{entry}</code>\n"
+            f"<b>🤖 Algo:</b> <code>{algorithm}</code>\n\n"
+            f"<b>{emoji} {symbol}</b>\n" 
+            f"<b>💰 Entry:</b> <code>{entry}</code>\n"
             f"<b>📊 Side:</b> <code>{side}</code>\n"
             f"<b>🎯 TP:</b> <code>{tp}</code>\n"
-            f"<b>🛑 SL:</b> <code>{sl}</code>\n"
+            f"<b>⛔ SL:</b> <code>{sl}</code>\n"
         )
         self.send_message(message)
 
