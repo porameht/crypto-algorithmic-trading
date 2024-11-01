@@ -41,15 +41,13 @@ class TradingBotBybit:
                 continue
             
             try:
-                # Get signals from all algorithms
                 signal_funcs = [
                     (func, *func(self.session, elem, self.timeframe))
                     for func in self.signal_funcs
                 ]
-                # Check signals from each algorithm
+
                 for func, signal, take_profit, stop_loss in signal_funcs:
                     if signal == Signal.UP.value and elem not in positions:
-                        self.telegram.send_message(f"🟢 Signal UP for {elem} with {func.__name__}")
                         result = self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
                         
                         if result:
@@ -58,7 +56,6 @@ class TradingBotBybit:
                             sleep(1)
                             break
                     elif signal == Signal.DOWN.value and elem not in positions:
-                        self.telegram.send_message(f"🔴 Signal DOWN for {elem} with {func.__name__}")
                         result = self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
                         
                         if result:
