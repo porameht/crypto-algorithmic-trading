@@ -367,12 +367,12 @@ class Bybit:
                 # Set TP, SL, and trailing stop
                 stop_resp = self.set_trading_stop(side, symbol, mark_price, tp, sl, trailing_stop_percent)
                 print(f'Trading stop set: {stop_resp}')
-            
-            print(f'Side: {side.capitalize()}')
-            print(f'Quantity: {order_qty}')
-            print(f'Mark Price: {mark_price}')
-            
-            return order_resp['retMsg']
+                print(f'Side: {side.capitalize()}')
+                print(f'Quantity: {order_qty}')
+                print(f'Mark Price: {mark_price}')
+                
+                return order_resp['retMsg'] == 'OK'
+            return False
         except Exception as err:
             print(f"Error placing order: {err}")
             return None

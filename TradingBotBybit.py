@@ -50,18 +50,22 @@ class TradingBotBybit:
                 for func, signal, take_profit, stop_loss in signal_funcs:
                     if signal == Signal.UP.value and elem not in positions:
                         self.telegram.send_message(f"🟢 Signal UP for {elem} with {func.__name__}")
-                        self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                        positions.append(elem)
-                        self.telegram.send_trade_message(elem, OrderSide.BUY.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
-                        sleep(1)
-                        break
+                        result = self.session.place_order_market(elem, OrderSide.BUY.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                        
+                        if result:
+                            positions.append(elem)
+                            self.telegram.send_trade_message(elem, OrderSide.BUY.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
+                            sleep(1)
+                            break
                     elif signal == Signal.DOWN.value and elem not in positions:
                         self.telegram.send_message(f"🔴 Signal DOWN for {elem} with {func.__name__}")
-                        self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
-                        positions.append(elem)
-                        self.telegram.send_trade_message(elem, OrderSide.SELL.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
-                        sleep(1)
-                        break
+                        result = self.session.place_order_market(elem, OrderSide.SELL.value, self.mode, self.leverage, self.qty, take_profit, stop_loss)
+                        
+                        if result:
+                            positions.append(elem)
+                            self.telegram.send_trade_message(elem, OrderSide.SELL.value, self.session.get_last_price(elem), take_profit, stop_loss, func.__name__)
+                            sleep(1)
+                            break
 
             except Exception as err:
                 self.telegram.send_message(f"❌ Error executing trade for {elem}: {err}")
