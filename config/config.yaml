@@ -1,0 +1,45 @@
+trading:
+  timeframes:
+    - 30  # 30 minutes
+    - 60  # 1 hour
+    - 240 # 4 hours
+  
+  strategies:
+    rsi:
+      enabled: true
+      params:
+        period: 14
+        overbought: 70
+        oversold: 30
+        tp_percent: 0.02
+        sl_percent: 0.01
+    
+    macd:
+      enabled: true
+      params:
+        fast_period: 12
+        slow_period: 26
+        signal_period: 9
+        tp_percent: 0.02
+        sl_percent: 0.01
+    
+    jim_simons:
+      enabled: true
+      params:
+        ema_period: 200
+        rsi_period: 14
+        stoch_period: 14
+        tp_percent: 0.02
+        sl_percent: 0.01
+
+  risk_management:
+    max_positions: 10
+    position_size: 0.25  # 25% of available balance
+    max_daily_trades: 20
+    min_daily_profit: 0.5  # 0.5%
+
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  file_enabled: true
+  console_enabled: true 

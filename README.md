@@ -1,26 +1,20 @@
-# Trading Bot with Bybit Integration
+# Crypto Trading Bot
 
-This project implements a trading bot that interacts with the Bybit API to execute trades based on predefined signals. The bot supports running multiple instances concurrently, each with its own configuration, trading strategy, and account information display.
-
-## Project Structure
-
-- `config.py`: Handles loading environment variables and configuration settings.
-- `trading_bot.py`: Contains the `TradingBotBybit` class which manages the trading logic, account information display, and execution of trades.
-- `main.py`: The entry point of the application, initializing bot instances and running them concurrently.
-- `AccountInfoDisplayer.py`: Contains the class for displaying account information in a structured format.
-- `Bybit.py`: Contains the class for interacting with the Bybit API.
-- `indicators/`: Directory containing signal functions used by the trading bot.
+A robust cryptocurrency trading bot built with Python, implementing multiple trading strategies and real-time notifications.
 
 ## Features
 
-- **Multi-Session Support**: Run multiple trading bot instances with different configurations.
-- **Signal-Based Trading**: Execute trades based on custom signal functions (e.g., combined RSI and MACD, Jim Simons signal).
-- **Account Information Display**: Display account balance, open positions, and P&L in a structured table format using the `rich` library.
-- **Concurrent Execution**: Utilize Python's `ThreadPoolExecutor` for concurrent execution of multiple bot instances.
+- Multiple trading strategies (RSI, MACD, Jim Simons)
+- Real-time Telegram notifications
+- Risk management
+- Account information tracking
+- Bybit exchange integration
+- Concurrent strategy execution
+- Configurable parameters
 
-## Installation
+## Setup
 
-1. **Clone the repository**:
+1. Clone the repository:
    ```bash
    git clone https://github.com/porameht/trading-bot.git
    cd trading-bot-bybit
@@ -48,67 +42,13 @@ This project implements a trading bot that interacts with the Bybit API to execu
    ACCOUNT_TYPE_WORKER1=worker1_account_type
    ```
 
-## Usage
-
-1. **Configure the trading bot**:
+5. **Configure the trading bot**:
    Edit the `session_configs` in `main.py` to customize the settings for each bot instance, including API keys, account types, trading strategies, and display titles.
 
-2. **Run the bot**:
+6. **Run the bot**:
    ```bash
    python main.py
    ```
-
-## Example
-
-```python
-# main.py
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from config import load_config
-from TradingBotBybit import TradingBotBybit
-from indicators.combined_rsi_macd_signal import combined_rsi_macd_signal
-from indicators.jim_simons import jim_simons_signal
-
-def main():
-    config = load_config()
-
-    session_configs = [
-        {
-            'api': config['api_main'],
-            'secret': config['secret_main'],
-            'accountType': config['accountType_main'],
-            'mode': config['mode'],
-            'leverage': config['leverage'],
-            'timeframe': config['timeframe'],
-            'qty': config['qty'],
-            'max_positions': config['max_positions'],
-            'signal_func': jim_simons_signal
-        },
-        {
-            'api': config['api_worker1'],
-            'secret': config['secret_worker1'],
-            'accountType': config['accountType_worker1'],
-            'mode': config['mode'],
-            'leverage': config['leverage'],
-            'timeframe': config['timeframe'],
-            'qty': config['qty'],
-            'max_positions': config['max_positions'],
-            'signal_func': combined_rsi_macd_signal
-        }
-    ]
-
-    bots = [TradingBotBybit(session_config) for session_config in session_configs]
-
-    with ThreadPoolExecutor(max_workers=len(bots)) as executor:
-        futures = [executor.submit(bot.run) for bot in bots]
-        for future in as_completed(futures):
-            try:
-                future.result()
-            except Exception as err:
-                print(f"Error in bot execution: {err}")
-
-if __name__ == "__main__":
-    main()
-```
 
 ## Customization
 

@@ -1,0 +1,46 @@
+trading_bot/
+├── src/
+│   ├── __init__.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── interfaces/
+│   │   │   ├── __init__.py
+│   │   │   ├── exchange_interface.py
+│   │   │   ├── bot_interface.py
+│   │   │   ├── notification_interface.py
+│   │   │   └── strategy_interface.py
+│   │   └── enums/
+│   │       ├── __init__.py
+│   │       └── trading_enums.py
+│   ├── exchanges/
+│   │   ├── __init__.py
+│   │   └── bybit_exchange.py
+│   ├── strategies/
+│   │   ├── __init__.py
+│   │   ├── base_strategy.py
+│   │   ├── rsi_strategy.py
+│   │   ├── macd_strategy.py
+│   │   ├── combined_strategy.py
+│   │   └── jim_simons_strategy.py
+│   ├── notifications/
+│   │   ├── __init__.py
+│   │   ├── notification_manager.py
+│   │   └── telegram_notifier.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── config_loader.py
+│   │   ├── logger.py
+│   │   └── account_info_displayer.py
+│   └── bots/
+│       ├── __init__.py
+│       ├── base_bot.py
+│       └── trading_bot.py
+├── tests/
+│   └── __init__.py
+├── config/
+│   └── config.yaml
+├── logs/
+├── .env.example
+├── requirements.txt
+├── Dockerfile
+└── main.py 
