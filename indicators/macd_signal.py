@@ -15,13 +15,19 @@ def macd_signal(session, symbol, timeframe):
         macd_line = macd_indicator.macd()
         macd_signal_line = macd_indicator.macd_signal()
 
+        # Calculate volume indicators
+        volume_sma = ta.volume.volume_weighted_average_price(kl.High, kl.Low, kl.Close, kl.Volume, window=20)
+        current_volume = kl.Volume.iloc[-1]
+        avg_volume = volume_sma.iloc[-1]
+        volume_increase = current_volume > (1.5 * avg_volume)  # Volume should be 50% above average
+
         atr = ta.volatility.AverageTrueRange(kl.High, kl.Low, kl.Close, window=20).average_true_range()
         stop_loss_distance = round(atr.iloc[-1], session.get_precisions(symbol)[0])    
 
-        if macd_line.iloc[-1] > 0 and macd_signal_line.iloc[-1] < 0:
+        if macd_line.iloc[-1] > 0 and macd_signal_line.iloc[-1] < 0 and volume_increase:
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
             return Signal.UP.value, take_profit, stop_loss
-        elif macd_line.iloc[-1] < 0 and macd_signal_line.iloc[-1] > 0:
+        elif macd_line.iloc[-1] < 0 and macd_signal_line.iloc[-1] > 0 and volume_increase:
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
             return Signal.DOWN.value, take_profit, stop_loss
         else:
