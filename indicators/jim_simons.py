@@ -4,17 +4,12 @@ import pandas as pd
 from common.enums import Signal
 
 def get_dax_ema_cross_signal(kl):
-    # Convert numpy array to pandas Series if needed
-    if not isinstance(kl.Close, pd.Series):
-        close = pd.Series(kl.Close)
-    else:
-        close = kl.Close
-        
-    # Calculate EMAs using pandas
+    """Check for EMA crossover signals using 8 and 21 period EMAs"""
+    close = pd.Series(kl.Close) if not isinstance(kl.Close, pd.Series) else kl.Close
+    
     ema_short = ta.trend.ema_indicator(close, window=8)
     ema_long = ta.trend.ema_indicator(close, window=21)
     
-    # Check last 2 values for crossover
     cross_up = (ema_short.iloc[-1] > ema_long.iloc[-1]) and (ema_short.iloc[-2] <= ema_long.iloc[-2])
     cross_down = (ema_short.iloc[-1] < ema_long.iloc[-1]) and (ema_short.iloc[-2] >= ema_long.iloc[-2])
     
@@ -22,74 +17,81 @@ def get_dax_ema_cross_signal(kl):
         return Signal.UP.value
     elif cross_down:
         return Signal.DOWN.value
-    else:
-        return Signal.NONE.value
-      
+    return Signal.NONE.value
+
 def get_rsi_bb_ema_dispersion_signal(kl):
-    stdev_mult = 2.5  # Reduced for more signals
-    dispersion = 0.15  # Increased for stronger confirmation
+    """Calculate RSI with Bollinger Bands and EMA dispersion for signals"""
+    close = pd.Series(kl.Close) if not isinstance(kl.Close, pd.Series) else kl.Close
     
-    # Convert to pandas Series if needed
-    if not isinstance(kl.Close, pd.Series):
-        close = pd.Series(kl.Close)
-    else:
-        close = kl.Close
-        
-    rsi = ta.momentum.rsi(close, window=9)  # Faster RSI period
-    basis = ta.trend.ema_indicator(rsi, window=14)  # Faster EMA period
-    stdev = rsi.rolling(window=14).std()  # Calculate standard deviation using pandas
+    rsi = ta.momentum.rsi(close, window=9)
+    basis = ta.trend.ema_indicator(rsi, window=14)
+    stdev = rsi.rolling(window=14).std()
+    
+    stdev_mult = 2.5
+    dispersion = 0.15
     
     upper = basis.iloc[-1] + stdev_mult * stdev.iloc[-1]
     lower = basis.iloc[-1] - stdev_mult * stdev.iloc[-1]
-    disp_up = basis.iloc[-1] + ((upper - lower) * dispersion)
-    disp_down = basis.iloc[-1] - ((upper - lower) * dispersion)
+    band_width = upper - lower
+    
+    disp_up = basis.iloc[-1] + (band_width * dispersion)
+    disp_down = basis.iloc[-1] - (band_width * dispersion)
     
     if rsi.iloc[-1] >= disp_up:
         return Signal.DOWN.value
     elif rsi.iloc[-1] <= disp_down:
         return Signal.UP.value
-    else:
-        return Signal.NONE.value
+    return Signal.NONE.value
 
-def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=2.5):  # Increased R:R ratio
+def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=2.5):
+    """Calculate take profit and stop loss levels based on risk:reward ratio"""
     stop_loss_distance = abs(entry_price - stop_loss)
     tp_distance = stop_loss_distance * risk_to_reward
-    if direction == 'long':
-        take_profit = entry_price + tp_distance
-    else:
-        take_profit = entry_price - tp_distance
-    
+    take_profit = entry_price + tp_distance if direction == 'long' else entry_price - tp_distance
     return take_profit, stop_loss
 
 def jim_simons_signal(session, symbol, timeframe):
+    """
+    Generate trading signals using a combination of:
+    - EMA crossovers
+    - RSI with Bollinger Bands
+    - Volume confirmation
+    - Trend confirmation with 200 EMA
+    """
     kl = session.klines(symbol, timeframe)
+    close = pd.Series(kl.Close) if not isinstance(kl.Close, pd.Series) else kl.Close
     
-    # Add volume confirmation
-    volume_increase = kl.Volume.iloc[-1] > kl.Volume.iloc[-2] * 1.2  # 20% volume increase
-    
+    # Get component signals
     dax_signal = get_dax_ema_cross_signal(kl)
     rsi_bb_signal = get_rsi_bb_ema_dispersion_signal(kl)
     
-    # Add trend confirmation using pandas Series
-    if not isinstance(kl.Close, pd.Series):
-        close = pd.Series(kl.Close)
-    else:
-        close = kl.Close
-        
+    # Confirmations
+    volume_increase = kl.Volume.iloc[-1] > kl.Volume.iloc[-2] * 1.2
     ema_200 = ta.trend.ema_indicator(close, window=200)
-    strong_trend = close.iloc[-1] > ema_200.iloc[-1]  # Check if price is above 200 EMA
+    strong_trend = close.iloc[-1] > ema_200.iloc[-1]
     
-    if dax_signal == Signal.UP.value and rsi_bb_signal == Signal.UP.value and volume_increase and strong_trend:
-        entry_price = kl.Close.iloc[-1]
-        stop_loss = min(kl.Low.iloc[-3:])  # Use recent swing low for stop loss
-        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=2.5, direction='long')
+    # Long signal
+    if all([
+        dax_signal == Signal.UP.value,
+        rsi_bb_signal == Signal.UP.value,
+        volume_increase,
+        strong_trend
+    ]):
+        entry_price = close.iloc[-1]
+        stop_loss = min(kl.Low.iloc[-3:])
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, direction='long')
         return Signal.UP.value, take_profit, stop_loss
         
-    elif dax_signal == Signal.DOWN.value and rsi_bb_signal == Signal.DOWN.value and volume_increase and not strong_trend:
-        entry_price = kl.Close.iloc[-1]
-        stop_loss = max(kl.High.iloc[-3:])  # Use recent swing high for stop loss
-        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, risk_to_reward=2.5, direction='short')
+    # Short signal    
+    if all([
+        dax_signal == Signal.DOWN.value,
+        rsi_bb_signal == Signal.DOWN.value,
+        volume_increase,
+        not strong_trend
+    ]):
+        entry_price = close.iloc[-1]
+        stop_loss = max(kl.High.iloc[-3:])
+        take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss, direction='short')
         return Signal.DOWN.value, take_profit, stop_loss
         
-    else:
-        return Signal.NONE.value, None, None
+    return Signal.NONE.value, None, None

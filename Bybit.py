@@ -327,30 +327,32 @@ class Bybit:
             
     
     def place_order_market(self, symbol, side, mode, leverage, qty, tp, sl, trailing_stop_percent=1):
-        # Set trading mode and leverage
-        
-        self.set_mode(symbol, mode, leverage)
-        sleep(0.5)
-        self.set_leverage(symbol, leverage)
-        sleep(0.5)
-        
-        # Get price and quantity precisions
-        price_precision = self.get_precisions(symbol)[0]
-        qty_precision = self.get_precisions(symbol)[1]
-        
-        # Get the current mark price
-        mark_price = self.session.get_tickers(
-            category='linear',
-            symbol=symbol
-        )['result']['list'][0]['markPrice']
-        mark_price = float(mark_price)
-        
-        # Calculate order quantity based on mark price
-        order_qty = round(qty / mark_price, qty_precision)
-        
-        sleep(2)
-
         try:
+            # Set trading mode and leverage
+            self.set_mode(symbol, mode, leverage)
+            sleep(0.5)
+            self.set_leverage(symbol, leverage)
+            sleep(0.5)
+            
+            # Get price and quantity precisions
+            price_precision = self.get_precisions(symbol)[0]
+            qty_precision = self.get_precisions(symbol)[1]
+            
+            # Get the current mark price
+            mark_price_resp = self.session.get_tickers(
+                category='linear',
+                symbol=symbol
+            )
+            if 'result' not in mark_price_resp or 'list' not in mark_price_resp['result']:
+                raise ValueError("Invalid response format when getting mark price")
+                
+            mark_price = float(mark_price_resp['result']['list'][0]['markPrice'])
+            
+            # Calculate order quantity based on mark price
+            order_qty = round(qty / mark_price, qty_precision)
+            
+            sleep(2)
+
             # Place the market order
             order_resp = self.session.place_order(
                 category='linear',
@@ -361,21 +363,29 @@ class Bybit:
                 takeProfit=str(tp),
                 stopLoss=str(sl),
             )
+            
+            if not order_resp or 'retMsg' not in order_resp:
+                raise ValueError("Invalid order response format")
+                
             print(f'Order placed: {order_resp["retMsg"]}')
             
             if order_resp['retMsg'] == 'OK':
                 # Set TP, SL, and trailing stop
                 stop_resp = self.set_trading_stop(side, symbol, mark_price, tp, sl, trailing_stop_percent)
+                if not stop_resp:
+                    raise ValueError("Failed to set trading stop")
+                    
                 print(f'Trading stop set: {stop_resp}')
                 print(f'Side: {side.capitalize()}')
                 print(f'Quantity: {order_qty}')
                 print(f'Mark Price: {mark_price}')
                 
-                return order_resp['retMsg'] == 'OK'
+                return True
             return False
+            
         except Exception as err:
             print(f"Error placing order: {err}")
-            return None
+            return str(err)
 
     def set_trading_stop(self, side, symbol, mark_price, tp, sl, trailing_stop_percent):
         price_precision = self.get_precisions(symbol)[0]

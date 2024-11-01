@@ -49,7 +49,6 @@ def main():
     signal_functions = {
         'comb_rsi_macd': comb_rsi_macd_signal,
         'rsi_basic': rsi_basic_signal,
-        'macd': macd_signal,
         'jim_simons': jim_simons_signal,
         'comb_rsi_cdc': comb_rsi_cdc_signal,
     }
@@ -67,7 +66,6 @@ def main():
             'signal_funcs': [
                 signal_functions['jim_simons'],  # Start with simpler signals
                 signal_functions['rsi_basic'],
-                signal_functions['macd'],
                 signal_functions['comb_rsi_cdc'],
                 signal_functions['comb_rsi_macd'],
             ],
