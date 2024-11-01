@@ -402,3 +402,14 @@ class Bybit:
         except Exception as err:
             print(f"Error setting trading stop: {err}")
             return None
+
+    def get_last_price(self, symbol):
+        try:
+            resp = self.session.get_tickers(
+                category='linear',
+                symbol=symbol
+            )['result']['list'][0]['lastPrice']
+            return float(resp)
+        except Exception as err:
+            print(err)
+            return None
