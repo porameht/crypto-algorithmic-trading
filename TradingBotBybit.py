@@ -187,8 +187,8 @@ class TradingBotBybit:
         print(f'interval: {interval}')
         print(f'current_time: {current_time}')
         print(f'self.current_time.hour % interval: {current_time.hour % interval}')
-        print(f'self.current_time.minute <= 3: {current_time.minute <= 3}')
-        if current_time.hour % interval == 0 and current_time.minute <= 3:
+        print(f'self.current_time.minute <= 3: {current_time.minute <= 1}')
+        if current_time.hour % interval == 0 and current_time.minute <= 1:
             self.display_and_notify_account_info()
             sleep(30)
 
@@ -199,8 +199,8 @@ class TradingBotBybit:
                 if not self._check_connection():
                     continue
                 
-                if self._check_net_profit():
-                    continue
+                # if self._check_net_profit():
+                #     continue
 
                 self._check_account_info_interval()
                 self._execute_trading_cycle()
