@@ -5,7 +5,6 @@ from datetime import datetime, time
 import pytz
 from common.enums import OrderSide, OrderType, MarginMode, TimeFrame, Signal
 from TelegramBot import TelegramBot
-from AccountInfoDisplayer import AccountInfoDisplayer
 from functools import lru_cache
 from typing import List, Optional, Tuple, Any
 import logging
@@ -58,22 +57,6 @@ class TradingBotBybit:
         if start_time < end_time:
             return start_time <= current_time <= end_time
         return current_time >= start_time or current_time <= end_time
-        
-    def display_and_notify_account_info(self) -> None:
-        """Display and send account information via Telegram."""
-        try:
-            account_displayer = AccountInfoDisplayer(
-                session=self.session,
-                title="💰 Account Info",
-                timeframe=self.timeframe,
-                telegram=self.telegram,
-                func_name=self._signal_func_names,
-                enable_logging=False
-            )
-            account_displayer.display_account_info()
-        except Exception as e:
-            logger.error(f"Error getting account info: {e}")
-            self.telegram.send_message(f"❌ Error getting account info: {str(e)}")
 
     def _handle_trade_signal(
         self, 
@@ -202,7 +185,6 @@ class TradingBotBybit:
                 # if self._check_net_profit():
                 #     continue
 
-                self._check_account_info_interval()
                 self._execute_trading_cycle()
 
             except Exception as err:
