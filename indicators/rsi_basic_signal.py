@@ -2,6 +2,7 @@ import ta
 from indicators.calculate_tp_sl import calculate_tp_sl
 from common.enums import Signal
 from TelegramBot import TelegramBot
+from common.redis_client import RedisClient
 
 def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, config=None):
     """
@@ -19,6 +20,10 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, c
     """
     try:
         telegram = TelegramBot(config)
+        redis_client = RedisClient(
+            host=config.get('redis_host', 'localhost'),
+            port=config.get('redis_port', 6379)
+        )
         kl = session.klines(symbol, timeframe)
         if len(kl) < max(window_rsi, window_atr, 50):
             return Signal.NONE.value, None, None
@@ -47,20 +52,26 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, c
 
         # Send alerts for potential signals if no trade signal was generated
         if rsi.iloc[-1] > 75:
-            telegram.send_message(
-                f"🔴 {symbol} RSI Alert\n"
-                f"RSI: {round(rsi.iloc[-1], 2)}\n"
-                f"Volume Increase: {'✅' if volume_increase else '❌'}\n" 
-                f"Downtrend: {'✅' if downtrend else '❌'}"
-            )
+            alert_type = "rsi_high"
+            if not redis_client.was_alerted(symbol, alert_type):
+                telegram.send_message(
+                    f"🔴 {symbol} RSI Alert\n"
+                    f"RSI: {round(rsi.iloc[-1], 2)}\n"
+                    f"Volume Increase: {'✅' if volume_increase else '❌'}\n" 
+                    f"Downtrend: {'✅' if downtrend else '❌'}"
+                )
+                redis_client.set_alert(symbol, alert_type)
             
         if rsi.iloc[-1] < 25:
-            telegram.send_message(
-                f"🟢 {symbol} RSI Alert\n"
-                f"RSI: {round(rsi.iloc[-1], 2)}\n"
-                f"Volume Increase: {'✅' if volume_increase else '❌'}\n"
-                f"Uptrend: {'✅' if uptrend else '❌'}"
-            )
+            alert_type = "rsi_low"
+            if not redis_client.was_alerted(symbol, alert_type):
+                telegram.send_message(
+                    f"🟢 {symbol} RSI Alert\n"
+                    f"RSI: {round(rsi.iloc[-1], 2)}\n"
+                    f"Volume Increase: {'✅' if volume_increase else '❌'}\n"
+                    f"Uptrend: {'✅' if uptrend else '❌'}"
+                )
+                redis_client.set_alert(symbol, alert_type)
             
         return Signal.NONE.value, None, None
         

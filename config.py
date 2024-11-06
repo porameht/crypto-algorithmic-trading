@@ -22,7 +22,9 @@ def load_config():
         'max_positions': os.getenv('MAX_POSITIONS', 10),  # Max 10 positions
         
         'telegram_bot_token': os.getenv('TELEGRAM_BOT_TOKEN', None),
-        'telegram_group_id': os.getenv('TELEGRAM_GROUP_ID', None)
+        'telegram_group_id': os.getenv('TELEGRAM_GROUP_ID', None),
+        'redis_host': os.getenv('REDIS_HOST', 'localhost'),
+        'redis_port': int(os.getenv('REDIS_PORT', 6379)),
     }
 
     return config
