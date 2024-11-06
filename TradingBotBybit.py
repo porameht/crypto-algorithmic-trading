@@ -129,7 +129,7 @@ class TradingBotBybit:
         signal_results = []
         for signal_func in self.signal_funcs:
             try:
-                signal_data = signal_func(self.session, symbol, self.timeframe)
+                signal_data = signal_func(self.session, symbol, self.timeframe, config=self.session_config)
                 signal_results.append((signal_func, *signal_data))
             except Exception as e:
                 logger.debug(f"Signal calculation failed for {signal_func.__name__}: {e}")
