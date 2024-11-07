@@ -92,6 +92,17 @@ class Bybit:
         except Exception as err:
             print(err)
             
+    def get_ticket_by_symbol(self):
+        try:
+            resp = self.session.get_tickers(category="spot")['result']['list']
+            symbols = []
+            for item in resp:
+                symbols.append(item['symbol'])
+            # if symbol in ['ETHBTC', 'LTCETH', 'LTCBTC']:
+            #     return resp
+            return symbols
+        except Exception as err:
+            print(err)
     def get_last_order_time(self, last_hours=1):
         last_order_times = {}
         try:
@@ -423,3 +434,43 @@ class Bybit:
         except Exception as err:
             print(err)
             return None
+
+    def execute_arbitrage(self, opportunity, trade_amount):
+        """Execute the triangular arbitrage trades.
+        
+        Args:
+            opportunity: An object containing the arbitrage path and details
+                       Expected format: {path: [(symbol, side, price), ...], profit_percentage: float}
+                       
+        Returns:
+            bool: True if arbitrage executed successfully, False otherwise
+        """
+        try:            
+            # Execute trades in sequence
+            for symbol, side, price in opportunity.path:
+                print(f"Placing {side} order for {symbol} at {price}")
+
+                # Place spot market order
+                result = self.session.place_order(
+                    category="spot",
+                    symbol=symbol,
+                    side=side.capitalize(),
+                    orderType="Market",
+                    qty=str(trade_amount if side == "buy" else trade_amount * price),
+                    isLeverage=0,  # Spot trading without margin
+                    timeInForce="IOC"  # Immediate or cancel
+                )
+                
+                if not result or result.get('retMsg') != 'OK':
+                    print(f"❌ Failed to execute trade for {symbol}")
+                    return False
+                
+                print(f"🟢 Successfully placed {side} order for {symbol}")
+                sleep(1)  # Small delay between trades
+            
+            print(f"🟢 Successfully executed arbitrage with {opportunity.profit_percentage}% profit")
+            return True
+
+        except Exception as e:
+            print(f"❌ Error executing arbitrage: {e}")
+            return False
