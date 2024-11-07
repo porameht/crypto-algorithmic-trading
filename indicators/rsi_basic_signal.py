@@ -68,10 +68,10 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, c
     except Exception as e:
         print(f"Error in rsi_basic_signal for {symbol}: {e}")
         return Signal.NONE.value, None, None
-def _is_bullish_signal(rsi, volume_increase, uptrend):
+def _is_bullish_signal(rsi, volume_increase):
     """Check if conditions indicate a bullish signal"""
     return rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25 and volume_increase
 
-def _is_bearish_signal(rsi, volume_increase, downtrend):
+def _is_bearish_signal(rsi, volume_increase):
     """Check if conditions indicate a bearish signal"""
     return rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75 and volume_increase
