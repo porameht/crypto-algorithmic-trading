@@ -208,7 +208,8 @@ class TradingBotBybit:
     def _execute_trading_cycle(self) -> None:
         """Execute one cycle of trading operations."""
         positions = self.session.get_positions(200)
+        positions_symbols = [position['symbol'] for position in positions]
         logger.info(f'🔎 Process started: Scanning {len(self.symbols)} charts with {self._signal_func_names} signals')
-        self.execute_trades(positions)
+        self.execute_trades(positions_symbols)
         logger.info(f'🔎 Process completed: {len(self.symbols)} charts scanned with {self._signal_func_names} signals')
         sleep(20)

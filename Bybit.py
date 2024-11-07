@@ -378,26 +378,25 @@ class Bybit:
             if not order_resp or 'retMsg' not in order_resp:
                 raise ValueError("Invalid order response format")
                 
-            print(f'Order placed: {order_resp["retMsg"]}')
-            
+            print(f'🟢 Order placed: {order_resp["retMsg"]}')
+
             if order_resp['retMsg'] == 'OK':
                 # Set TP, SL, and trailing stop
                 stop_resp = self.set_trading_stop(side, symbol, mark_price, tp, sl, trailing_stop_percent)
                 if not stop_resp:
                     raise ValueError("Failed to set trading stop")
                     
-                print(f'Trading stop set: {stop_resp}')
+                print(f'🟢 Trading stop set: {stop_resp}')
                 print(f'Side: {side.capitalize()}')
                 print(f'Quantity: {order_qty}')
                 print(f'Mark Price: {mark_price}')
                 
                 return True
-            return False
             
+            return False
         except Exception as err:
-            print(f"Error placing order: {err}")
-            return str(err)
-
+            print(f"❌ Error placing order: {err}")
+            return False
     def set_trading_stop(self, side, symbol, mark_price, tp, sl, trailing_stop_percent):
         price_precision = self.get_precisions(symbol)[0]
         
