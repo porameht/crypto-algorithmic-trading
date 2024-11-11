@@ -140,6 +140,7 @@ class TradingBotBybit:
         """Process calculated signals and execute trades if conditions are met."""
         for signal_func, signal, take_profit, stop_loss in signal_results:
             if signal not in [Signal.UP.value, Signal.DOWN.value]:
+                self.telegram.send_message(f"👨‍💻 {symbol} {signal_func.__name__} {signal}")
                 continue
                 
             if self._handle_trade_signal(symbol, signal, take_profit, stop_loss, positions, signal_func):
