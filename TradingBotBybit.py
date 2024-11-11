@@ -139,6 +139,7 @@ class TradingBotBybit:
     def _process_signals(self, symbol: str, signal_results: List[Tuple], positions: List[str]) -> None:
         """Process calculated signals and execute trades if conditions are met."""
         for signal_func, signal, take_profit, stop_loss in signal_results:
+            print(f"👨‍💻 {symbol} {signal_func.__name__} {signal}")
             if signal not in [Signal.UP.value, Signal.DOWN.value]:
                 self.telegram.send_message(f"👨‍💻 {symbol} {signal_func.__name__} {signal}")
                 continue
