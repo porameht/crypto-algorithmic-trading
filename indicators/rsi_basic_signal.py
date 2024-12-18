@@ -37,20 +37,10 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, c
         downtrend = ema_20.iloc[-1] < ema_50.iloc[-1]
         # Calculate trend percentages
         ema_diff_percent = ((ema_20.iloc[-1] - ema_50.iloc[-1]) / ema_50.iloc[-1]) * 100
-        
-        # Send alerts for all conditions
-        if rsi.iloc[-1] > 75:
-            telegram.send_message(
-                f"🔴 {symbol} RSI Alert\n"
-                f"RSI: {round(rsi.iloc[-1], 2)}\n"
-                f"RSI[-2]: {round(rsi.iloc[-2], 2)}\n"
-                f"[-2]>75 && [-1]<75: {'✅' if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75 else '❌'}\n"
-                f"Volume Increase: {'✅' if volume_increase else '❌'}\n" 
-                f"Downtrend: {'✅' if downtrend else '❌'}\n"
-                f"Trend %: {round(ema_diff_percent, 2)}%"
-            )
             
-        if rsi.iloc[-1] < 25:
+        # Check conditions for bullish or bearish signal
+        if rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25:
+            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5)
             telegram.send_message(
                 f"🟢 {symbol} RSI Alert\n"
                 f"RSI: {round(rsi.iloc[-1], 2)}\n"
@@ -60,31 +50,21 @@ def rsi_basic_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, c
                 f"Uptrend: {'✅' if uptrend else '❌'}\n"
                 f"Trend %: {round(ema_diff_percent, 2)}%"
             )
-        # Check conditions for bullish or bearish signal
-        if _is_bullish_signal(rsi, config):
-            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5)
             return Signal.UP.value, take_profit, stop_loss
             
-        if _is_bearish_signal(rsi, config):
+        if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75:
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, is_sell=True)
+            telegram.send_message(
+                f"🔴 {symbol} RSI Alert\n"
+                f"RSI: {round(rsi.iloc[-1], 2)}\n"
+                f"RSI[-2]: {round(rsi.iloc[-2], 2)}\n"
+                f"[-2]>75 && [-1]<75: {'✅' if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75 else '❌'}\n"
+                f"Volume Increase: {'✅' if volume_increase else '❌'}\n" 
+                f"Downtrend: {'✅' if downtrend else '❌'}\n"
+                f"Trend %: {round(ema_diff_percent, 2)}%"
+            )
             return Signal.DOWN.value, take_profit, stop_loss
-            
-        return Signal.NONE.value, None, None
         
     except Exception as e:
         print(f"Error in rsi_basic_signal for {symbol}: {e}")
         return Signal.NONE.value, None, None
-    
-def _is_bullish_signal(rsi, config):
-    """Check if conditions indicate a bullish signal"""
-    telegram = TelegramBot(config)
-    if rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25:
-        telegram.send_message(f"👨‍💻 _is_bullish_signal {rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25}\n")
-    return rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25
-
-def _is_bearish_signal(rsi, config):
-    """Check if conditions indicate a bearish signal"""
-    telegram = TelegramBot(config)
-    if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75:
-        telegram.send_message(f"👨‍💻 _is_bearish_signal {rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75}\n")
-    return rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75

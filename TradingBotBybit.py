@@ -83,7 +83,7 @@ class TradingBotBybit:
             self.leverage, 
             self.qty, 
             take_profit, 
-            stop_loss
+            stop_loss=None
         )
         
         if not result:
