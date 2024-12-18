@@ -337,7 +337,7 @@ class Bybit:
             return None
             
     
-    def place_order_market(self, symbol, side, mode, leverage, qty, tp, sl=None, trailing_stop_percent=1):
+    def place_order_market(self, symbol, side, mode, leverage, qty, tp, sl, trailing_stop_percent=1):
         try:
             # Set trading mode and leverage
             self.set_mode(symbol, mode, leverage)
@@ -372,7 +372,7 @@ class Bybit:
                 orderType='Market',
                 qty=str(order_qty),
                 takeProfit=str(tp),
-                stopLoss=str(sl) if sl else None,
+                stopLoss=str(sl),
             )
             
             if not order_resp or 'retMsg' not in order_resp:
@@ -397,7 +397,6 @@ class Bybit:
         except Exception as err:
             print(f"❌ Error placing order: {err}")
             return False
-    
     def set_trading_stop(self, side, symbol, mark_price, tp, sl, trailing_stop_percent):
         price_precision = self.get_precisions(symbol)[0]
         
@@ -408,7 +407,7 @@ class Bybit:
                 category='linear',
                 symbol=symbol,
                 takeProfit=str(tp),
-                stopLoss=str(sl) if sl else None,
+                stopLoss=str(sl),
                 trailingStop=str(trailing_stop),
                 tpTriggerBy='MarkPrice',
                 slTriggerBy='MarkPrice',
