@@ -24,7 +24,7 @@ def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, is_sell
     return take_profit, stop_loss
 
 
-def calculate_tp_sl_by_percent(entry_price, take_profit_percent=0.02, stop_loss_percent=0.008, is_sell=False):
+def calculate_tp_sl_by_percent(entry_price, take_profit_percent=0.02, stop_loss_percent=0.01, is_sell=False):
     """
     Calculate take profit and stop loss based on percentage of entry price
     

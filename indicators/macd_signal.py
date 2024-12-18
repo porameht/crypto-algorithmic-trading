@@ -1,6 +1,9 @@
 import ta
 from common.enums import Signal
 from indicators.calculate_tp_sl import calculate_tp_sl
+import logging
+
+logger = logging.getLogger(__name__)
 
 def macd_signal(session, symbol, timeframe):
     try:
@@ -25,13 +28,15 @@ def macd_signal(session, symbol, timeframe):
         stop_loss_distance = round(atr.iloc[-1], session.get_precisions(symbol)[0])    
 
         if macd_line.iloc[-1] > 0 and macd_signal_line.iloc[-1] < 0 and volume_increase:
+            logger.info(f"🟢 {symbol} MACD signal is UP")
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
             return Signal.UP.value, take_profit, stop_loss
         elif macd_line.iloc[-1] < 0 and macd_signal_line.iloc[-1] > 0 and volume_increase:
+            logger.info(f"🔴 {symbol} MACD signal is DOWN")
             take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
             return Signal.DOWN.value, take_profit, stop_loss
         else:
             return Signal.NONE.value, None, None
     except Exception as e:
-        print(f"Error processing {symbol}: {e}")
+        logger.error(f"Error processing {symbol}: {e}", exc_info=True)
         return Signal.NONE.value, None, None

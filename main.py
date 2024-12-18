@@ -3,8 +3,6 @@ from TelegramBot import TelegramBot
 from config import load_config
 from TradingBotBybit import TradingBotBybit
 from indicators.comb_rsi_macd_signal import comb_rsi_macd_signal
-from indicators.rsi_basic_signal import rsi_basic_signal
-from indicators.jim_simons import jim_simons_signal
 from indicators.comb_rsi_cdc_signal import comb_rsi_cdc_signal
 import logging
 
@@ -25,8 +23,7 @@ def get_signal_functions():
     """
     signal_functions = {
         'comb_rsi_macd': comb_rsi_macd_signal,
-        'rsi_basic': rsi_basic_signal, 
-        'jim_simons': jim_simons_signal,
+        # 'rsi_basic': rsi_signal, 
         'comb_rsi_cdc': comb_rsi_cdc_signal,
     }
     return signal_functions
@@ -60,8 +57,8 @@ def create_session_config(config, signal_functions):
     
     # Signal function configuration
     signal_funcs = [
-        signal_functions['jim_simons'],
-        signal_functions['rsi_basic'],
+        # signal_functions['jim_simons'],
+        # signal_functions['rsi_basic'],
         signal_functions['comb_rsi_cdc'], 
         signal_functions['comb_rsi_macd'],
     ]
@@ -78,7 +75,8 @@ def create_session_config(config, signal_functions):
         **credentials,
         **trading_params,
         'signal_funcs': signal_funcs,
-        **telegram_config
+        **telegram_config,
+        **config
     }
     
     return session_config
