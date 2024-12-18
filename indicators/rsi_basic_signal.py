@@ -82,7 +82,7 @@ def _is_bullish_signal(rsi, config):
         telegram.send_message(f"👨‍💻 _is_bullish_signal {rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25}\n")
     return rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25
 
-def _is_bearish_signal(rsi, volume_increase, downtrend, config):
+def _is_bearish_signal(rsi, config):
     """Check if conditions indicate a bearish signal"""
     telegram = TelegramBot(config)
     if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75:
