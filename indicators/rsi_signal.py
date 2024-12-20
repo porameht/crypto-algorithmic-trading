@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def rsi_signal(session, symbol, timeframe, window_rsi=14, window_atr=14):
+def rsi_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, config=None):
     """
     Generate trading signals based on RSI with trend and volume confirmation.
     
@@ -40,7 +40,9 @@ def rsi_signal(session, symbol, timeframe, window_rsi=14, window_atr=14):
         # Calculate conditions
         stop_loss_distance = round(atr.iloc[-1] * 1.5, session.get_precisions(symbol)[0])
 
-        logger.debug(f"{symbol} RSI[-1]: {rsi.iloc[-1]}, RSI[-2]: {rsi.iloc[-2]}")
+        print(f"{symbol} 25 {rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25}")
+        
+        print(f"{symbol} 75 {rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75}")
         
         # Check conditions for bullish or bearish signal
         if rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25:
