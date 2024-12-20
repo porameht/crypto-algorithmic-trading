@@ -45,13 +45,15 @@ def rsi_signal(session, symbol, timeframe, window_rsi=14, window_atr=14):
         # Check conditions for bullish or bearish signal
         if rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25:
             logger.info(f"🟢 {symbol} RSI signal is UP")
-            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5)
-            return Signal.UP.value, take_profit, stop_loss
+            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, is_sell=False)
+            # return Signal.UP.value, take_profit, stop_loss
+            return Signal.DOWN.value, take_profit, stop_loss
             
         if rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75:
             logger.info(f"🔴 {symbol} RSI signal is DOWN")
-            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, is_sell=True)
-            return Signal.DOWN.value, take_profit, stop_loss
+            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, )
+            # return Signal.DOWN.value, take_profit, stop_loss
+            return Signal.UP.value, take_profit, stop_loss
         
         return Signal.NONE.value, None, None
         
