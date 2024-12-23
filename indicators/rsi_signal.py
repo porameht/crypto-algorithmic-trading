@@ -40,6 +40,10 @@ def rsi_signal(session, symbol, timeframe, window_rsi=14, window_atr=14, config=
         # Calculate conditions
         stop_loss_distance = round(atr.iloc[-1] * 1.5, session.get_precisions(symbol)[0])
         
+        print(f"{symbol} 25 {rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25}")
+        
+        print(f"{symbol} 75 {rsi.iloc[-2] > 75 and rsi.iloc[-1] < 75}")
+        
         # Check conditions for bullish or bearish signal
         if rsi.iloc[-2] < 25 and rsi.iloc[-1] > 25:
             logger.info(f"🟢 {symbol} RSI signal is UP")
