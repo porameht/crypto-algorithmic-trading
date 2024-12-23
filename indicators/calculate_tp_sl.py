@@ -1,4 +1,4 @@
-def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.5, is_sell=False):
+def calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward, is_sell=False):
     """
     Calculate take profit and stop loss based on ATR-derived stop distance and risk:reward ratio
     
