@@ -29,11 +29,11 @@ def macd_signal(session, symbol, timeframe):
 
         if macd_line.iloc[-1] > 0 and macd_signal_line.iloc[-1] < 0 and volume_increase:
             logger.info(f"🟢 {symbol} MACD signal is UP")
-            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0)
+            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=4.0)
             return Signal.UP.value, take_profit, stop_loss
         elif macd_line.iloc[-1] < 0 and macd_signal_line.iloc[-1] > 0 and volume_increase:
             logger.info(f"🔴 {symbol} MACD signal is DOWN")
-            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=2.0, is_sell=True)
+            take_profit, stop_loss = calculate_tp_sl(entry_price, stop_loss_distance, risk_to_reward=4.0, is_sell=True)
             return Signal.DOWN.value, take_profit, stop_loss
         else:
             return Signal.NONE.value, None, None

@@ -43,7 +43,7 @@ def get_rsi_bb_ema_dispersion_signal(kl):
         return Signal.UP.value
     return Signal.NONE.value
 
-def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=2.5):
+def calculate_tp_sl(entry_price, stop_loss, direction, risk_to_reward=4.0):
     """Calculate take profit and stop loss levels based on risk:reward ratio"""
     stop_loss_distance = abs(entry_price - stop_loss)
     tp_distance = stop_loss_distance * risk_to_reward
